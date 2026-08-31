@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acceso · Puerta Maestra BAUTO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<link rel="stylesheet" href="estilo-bauto.css">
+</head>
+<body>
+
+<div class="login-container">
+  <div class="login-panel-box" id="login-panel-box" style="visibility:hidden;">
+    <div class="artistic-panel">
+      <div id="celestial-hero">
+        <div class="celestial-sun"></div>
+        <div class="celestial-moon"></div>
+      </div>
+      <div class="date-box">
+        <h3 id="date-day-name">HOY</h3>
+        <div>
+          <span class="day-num" id="date-day-num">29</span>
+          <span class="month-name" id="date-month-name">Ago</span>
+        </div>
+        <div class="date-year" id="date-year">2026</div>
+      </div>
+      <div class="location-box">
+        <span class="location-label">SISTEMA</span>
+        <span class="location-val">Puerta Maestra</span>
+      </div>
+    </div>
+
+    <!-- PASO 1: Credenciales + Geolocalización -->
+    <div class="step active" id="step-1">
+      <div class="login-card">
+        <div class="login-title-row">
+          <h2>Iniciar sesión</h2>
+        </div>
+        <div class="input-group">
+          <span class="material-symbols-outlined input-icon">person</span>
+          <input type="text" class="input-field" id="input-user" placeholder="Usuario" autocomplete="username">
+        </div>
+        <div class="input-group">
+          <span class="material-symbols-outlined input-icon">lock</span>
+          <input type="password" class="input-field" id="input-pass" placeholder="Contraseña 1gate" autocomplete="current-password">
+        </div>
+        <div class="field-error" id="error-1">Escribe tu usuario y contraseña.</div>
+        <div id="box-excepcion-viaje" style="display:none;margin-top:12px;text-align:center;">
+          <button type="button" class="btn-pill-disc" id="btn-pedir-excepcion" style="background:#2c2c2c;font-size:12px;padding:6px 14px;display:inline-flex;width:auto;margin:0 auto;">
+            <span class="btn-pill-disc-label" style="font-size:12px;">Solicitar excepción de viaje</span>
+            <span class="btn-pill-disc-arrow"><span class="material-symbols-outlined" style="font-size:16px;">flight_takeoff</span></span>
+          </button>
+          <div id="estado-excepcion-viaje" style="font-size:11px;color:var(--text-secondary);margin-top:8px;line-height:1.4;"></div>
+        </div>
+        <div class="login-footer-row">
+          <button type="button" class="btn-pill-disc" id="btn-step1">
+            <span class="btn-pill-disc-label">Ingresar</span>
+            <span class="btn-pill-disc-arrow">
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </span>
+          </button>
+        </div>
+        <div style="text-align:center;margin-top:4px;">
+          <a href="#" id="link-respaldo" style="font-size:11px;color:var(--text-secondary);text-decoration:underline;">Usar código de respaldo</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 2b: Google Authenticator (TOTP) -->
+    <div class="step" id="step-2b">
+      <div class="login-card">
+        <div class="login-title-row">
+          <h2>Google Authenticator</h2>
+          <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 0;">Ingresa el código de 6 dígitos de tu app</p>
+        </div>
+        <div class="input-group">
+          <input type="text" class="input-field code" id="input-totp" placeholder="· · · · · ·" maxlength="6" inputmode="numeric">
+        </div>
+        <div class="field-error" id="error-2b">Código incorrecto.</div>
+        <div class="login-footer-row">
+          <button type="button" class="btn-pill-disc" id="btn-step2b">
+            <span class="btn-pill-disc-label">Verificar</span>
+            <span class="btn-pill-disc-arrow">
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 2: Código por Correo -->
+    <div class="step" id="step-2">
+      <div class="login-card">
+        <div class="login-title-row">
+          <h2>Código por Correo</h2>
+          <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 0;">Revisa el código enviado a tu bandeja</p>
+        </div>
+        <div class="input-group">
+          <input type="text" class="input-field code" id="input-code" placeholder="· · · · · ·" maxlength="6" inputmode="numeric">
+        </div>
+        <div class="field-error" id="error-2">Código incorrecto o expirado.</div>
+        <div class="login-footer-row">
+          <button type="button" class="btn-pill-disc" id="btn-step2">
+            <span class="btn-pill-disc-label">Entrar al Hub</span>
+            <span class="btn-pill-disc-arrow">
+              <span class="material-symbols-outlined">check</span>
+            </span>
+          </button>
+        </div>
+        <div style="text-align:center;margin-top:8px;">
+          <button type="button" id="btn-reenviar-email" style="background:none;border:none;color:var(--text-secondary);font-size:11px;text-decoration:underline;cursor:pointer;">Reenviar código por correo</button>
+          <div id="feedback-reenviar-email" style="display:none;font-size:11px;color:var(--text-secondary);margin-top:4px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO RESPALDO: Código de Respaldo Impreso -->
+    <div class="step" id="step-respaldo">
+      <div class="login-card">
+        <div class="login-title-row">
+          <h2>Código de Respaldo</h2>
+          <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 0;">Ingresa uno de tus 10 códigos impresos</p>
+        </div>
+        <div class="input-group">
+          <span class="material-symbols-outlined input-icon">person</span>
+          <input type="text" class="input-field" id="input-user-respaldo" placeholder="Usuario">
+        </div>
+        <div class="input-group">
+          <span class="material-symbols-outlined input-icon">lock</span>
+          <input type="password" class="input-field" id="input-pass-respaldo" placeholder="Contraseña 1gate">
+        </div>
+        <div class="input-group">
+          <input type="text" class="input-field code" id="input-code-respaldo" placeholder="ABC12345" maxlength="10" style="letter-spacing:0.15em;">
+        </div>
+        <div class="field-error" id="error-respaldo">Código de respaldo inválido.</div>
+        <div class="login-footer-row">
+          <button type="button" class="btn-pill-disc" id="btn-respaldo">
+            <span class="btn-pill-disc-label">Acceder</span>
+            <span class="btn-pill-disc-arrow">
+              <span class="material-symbols-outlined">key</span>
+            </span>
+          </button>
+        </div>
+        <div style="text-align:center;margin-top:4px;">
+          <a href="#" id="link-volver-login" style="font-size:11px;color:var(--text-secondary);text-decoration:underline;">Volver al login normal</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="config-web.js"></script>
+<script>
+  /**
+   * @BAUTO_REFACTOR 2026-08-31
+   * @Modulo: 0. HUB
+   * @Propósito: Decisión del usuario 2026-08-30 — con los niveles desactivados, esta
+   *             página nunca se muestra como login: entra directo al hub sin que nadie
+   *             toque nada. El panel arranca oculto y solo se revela si los niveles SÍ
+   *             están activos (o si no se pudo confirmar, por seguridad).
+   * @Capa: Capa 2 - Seguridad de Sesión
+   * @Riesgo_Evaluado: Alto - si la consulta al servidor falla (sin red, HUB caído),
+   *                   debe revelar el formulario normal — fallar hacia el lado seguro,
+   *                   nunca entrar solo por no haber podido confirmar el estado.
+   */
+  (async function () {
+    let estado;
+    try {
+      estado = await fetch(HUB_URL + '?accion=nivelesActivos').then(r => r.json());
+    } catch (err) {
+      estado = { activos: true }; // sin red: más seguro asumir que sí están activos
+    }
+
+    if (!estado.activos) {
+      const respuesta = await fetch(HUB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ accion: 'entrarSinNiveles' })
+      }).then(r => r.json()).catch(() => ({ success: false }));
+
+      if (respuesta.success) {
+        localStorage.setItem('bauto_hub_token', respuesta.hubToken);
+        window.location.href = 'index.html';
+        return; // el panel nunca llega a mostrarse
+      }
+    }
+    document.getElementById('login-panel-box').style.visibility = 'visible';
+  })();
+
+  // Inicializar fecha
+  (function () {
+    const ahora = new Date();
+    const dias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    document.getElementById('date-day-name').textContent = dias[ahora.getDay()];
+    document.getElementById('date-day-num').textContent = ahora.getDate();
+    document.getElementById('date-month-name').textContent = meses[ahora.getMonth()];
+    document.getElementById('date-year').textContent = ahora.getFullYear();
+  })();
+
+  window.bautoPreAuthToken = null;
+
+  function mostrarPaso(pasoId) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(pasoId).classList.add('active');
+  }
+
+  // Alternar a código de respaldo
+  document.getElementById('link-respaldo').addEventListener('click', function (e) {
+    e.preventDefault();
+    mostrarPaso('step-respaldo');
+  });
+
+  document.getElementById('link-volver-login').addEventListener('click', function (e) {
+    e.preventDefault();
+    mostrarPaso('step-1');
+  });
+
+  let pollingInterval = null;
+
+  // Paso 1: Usuario + Contraseña + Geolocalización
+  document.getElementById('btn-step1').addEventListener('click', async function () {
+    const user = document.getElementById('input-user').value.trim();
+    const pass = document.getElementById('input-pass').value.trim();
+    const error = document.getElementById('error-1');
+    const boxExcepcion = document.getElementById('box-excepcion-viaje');
+    if (!user || !pass) {
+      error.textContent = 'Escribe tu usuario y contraseña.';
+      error.classList.add('show');
+      return;
+    }
+    error.classList.remove('show');
+    if (boxExcepcion) boxExcepcion.style.display = 'none';
+
+    let geoPayload = null;
+    try {
+      const posicion = await new Promise((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 })
+      );
+      geoPayload = { lat: posicion.coords.latitude, lng: posicion.coords.longitude };
+    } catch (err) {
+      error.textContent = 'Debes permitir la geolocalización para ingresar.';
+      error.classList.add('show');
+      if (boxExcepcion) boxExcepcion.style.display = 'block';
+      return;
+    }
+
+    try {
+      const respuesta = await fetch(HUB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ accion: 'login', user: user, password: pass, geoPayload: geoPayload })
+      }).then(r => r.json());
+
+      if (!respuesta.success) {
+        error.textContent = respuesta.error || 'Error de autenticación.';
+        error.classList.add('show');
+        if (respuesta.error && (respuesta.error.toLowerCase().includes('perímetro') || respuesta.error.toLowerCase().includes('fuera') || respuesta.error.toLowerCase().includes('restringido'))) {
+          if (boxExcepcion) boxExcepcion.style.display = 'block';
+        }
+        return;
+      }
+
+      window.bautoPreAuthToken = respuesta.preAuthToken;
+      mostrarPaso('step-2b');
+    } catch (e) {
+      error.textContent = 'Error de conexión con la Puerta Maestra.';
+      error.classList.add('show');
+    }
+  });
+
+  // Solicitar excepción de viaje
+  document.getElementById('btn-pedir-excepcion').addEventListener('click', async function () {
+    const user = document.getElementById('input-user').value.trim();
+    const pass = document.getElementById('input-pass').value.trim();
+    const estadoEl = document.getElementById('estado-excepcion-viaje');
+    const btn = document.getElementById('btn-pedir-excepcion');
+
+    btn.disabled = true;
+    estadoEl.style.display = 'block';
+    estadoEl.textContent = 'Enviando solicitud de viaje...';
+
+    try {
+      const res = await fetch(HUB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ accion: 'solicitarExcepcionUbicacion', user: user, password: pass })
+      }).then(r => r.json());
+
+      if (!res.success || !res.idExcepcion) {
+        estadoEl.textContent = res.error || 'No se pudo crear la solicitud.';
+        btn.disabled = false;
+        return;
+      }
+
+      const idExcepcion = res.idExcepcion;
+      estadoEl.textContent = 'Solicitud enviada. Esperando que el otro administrador autorice en APPBAUTO...';
+
+      let intentos = 0;
+      const maxIntentos = 100; // 5 minutos (a 3s por intento)
+      if (pollingInterval) clearInterval(pollingInterval);
+
+      pollingInterval = setInterval(async function () {
+        intentos++;
+        if (intentos > maxIntentos) {
+          clearInterval(pollingInterval);
+          estadoEl.textContent = 'La solicitud expiró sin respuesta. Intenta de nuevo.';
+          btn.disabled = false;
+          return;
+        }
+
+        try {
+          const pollRes = await fetch(HUB_URL + '?accion=consultarExcepcion&idExcepcion=' + encodeURIComponent(idExcepcion))
+            .then(r => r.json());
+
+          if (pollRes.estado === 'APROBADO' && pollRes.bypassToken) {
+            clearInterval(pollingInterval);
+            estadoEl.textContent = '¡Excepción aprobada! Iniciando sesión...';
+
+            const resLogin = await fetch(HUB_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({
+                accion: 'login',
+                user: user,
+                password: pass,
+                geoPayload: null,
+                bypassToken: pollRes.bypassToken
+              })
+            }).then(r => r.json());
+
+            if (resLogin.success) {
+              window.bautoPreAuthToken = resLogin.preAuthToken;
+              mostrarPaso('step-2b');
+            } else {
+              estadoEl.textContent = resLogin.error || 'Error al completar el login.';
+              btn.disabled = false;
+            }
+          } else if (pollRes.estado === 'EXPIRADO') {
+            clearInterval(pollingInterval);
+            estadoEl.textContent = 'La solicitud ha expirado.';
+            btn.disabled = false;
+          }
+        } catch (err) {
+          console.warn('Error en polling de excepción:', err);
+        }
+      }, 3000);
+
+    } catch (e) {
+      estadoEl.textContent = 'Error de conexión al solicitar excepción.';
+      btn.disabled = false;
+    }
+  });
+
+  // Reenviar código por correo
+  document.getElementById('btn-reenviar-email').addEventListener('click', async function () {
+    const feedback = document.getElementById('feedback-reenviar-email');
+    const btn = document.getElementById('btn-reenviar-email');
+    if (!window.bautoPreAuthToken) {
+      feedback.textContent = 'Sesión expirada. Vuelve a iniciar sesión.';
+      feedback.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    feedback.textContent = 'Reenviando...';
+    feedback.style.display = 'block';
+
+    try {
+      const res = await fetch(HUB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ accion: 'enviarCodigoEmail', preAuthToken: window.bautoPreAuthToken })
+      }).then(r => r.json());
+
+      if (res.success) {
+        feedback.textContent = 'Código reenviado con éxito a tu bandeja.';
+      } else {
+        feedback.textContent = res.error || 'No se pudo reenviar el código.';
+      }
+    } catch (e) {
+      feedback.textContent = 'Error de conexión.';
+    } finally {
+      setTimeout(() => { btn.disabled = false; }, 5000);
+    }
+  });
+
+  // Paso 2b: Google Authenticator (TOTP)
+  document.getElementById('btn-step2b').addEventListener('click', async function () {
+    const codigo = document.getElementById('input-totp').value.trim();
+    const error = document.getElementById('error-2b');
+    if (codigo.length !== 6) {
+      error.textContent = 'Escribe el código de 6 dígitos.';
+      error.classList.add('show');
+      return;
+    }
+    error.classList.remove('show');
+
+    try {
+      const respuesta = await fetch(HUB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ accion: 'verificarTotp', preAuthToken: window.bautoPreAuthToken, codigo: codigo })
+      }).then(r => r.json());
+
+      if (!respuesta.success) {
+        error.textContent = respuesta.error === 'CODIGO_INCORRECTO' ? 'Código incorrecto.' : respuesta.error;
+        error.classList.add('show');
+        return;
+      }
+
+      mostrarPaso('step-2');
+    } catch (e) {
+      error.textContent = 'Error al validar el Authenticator.';
+      error.classList.add('show');
+    }
+  });
+
+  // Paso 2: Código por Correo
+  document.getElementById('btn-step2').addEventListener('click', async function () {
+    const codigo = document.getElementById('input-code').value.trim();
+    const error = document.getElementById('error-2');
+    if (codigo.length !== 6) {
+      error.textContent = 'Escribe el código de 6 dígitos.';
+      error.classList.add('show');
+      return;
+    }
+    error.classList.remove('show');
+
+    try {
+      const respuesta = await fetch(HUB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ accion: 'verificarCodigoEmail', preAuthToken: window.bautoPreAuthToken, codigo: codigo })
+      }).then(r => r.json());
+
+      if (!respuesta.success) {
+        error.textContent = respuesta.error === 'CODIGO_INCORRECTO' ? 'Código incorrecto.' : respuesta.error;
+        error.classList.add('show');
+        return;
+      }
+
+      localStorage.setItem('bauto_hub_token', respuesta.hubToken);
+      window.location.href = 'index.html';
+    } catch (e) {
+      error.textContent = 'Error al verificar el código de correo.';
+      error.classList.add('show');
+    }
+  });
+
+  // Código de Respaldo
+  document.getElementById('btn-respaldo').addEventListener('click', async function () {
+    const user = document.getElementById('input-user-respaldo').value.trim();
+    const pass = document.getElementById('input-pass-respaldo').value.trim();
+    const code = document.getElementById('input-code-respaldo').value.trim();
+    const error = document.getElementById('error-respaldo');
+    if (!user || !pass || !code) {
+      error.textContent = 'Completa todos los campos.';
+      error.classList.add('show');
+      return;
+    }
+    error.classList.remove('show');
+
+    try {
+      const respuesta = await fetch(HUB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ accion: 'usarCodigoRespaldo', user: user, password: pass, codigo: code })
+      }).then(r => r.json());
+
+      if (!respuesta.success) {
+        error.textContent = respuesta.error || 'Código de respaldo inválido.';
+        error.classList.add('show');
+        return;
+      }
+
+      localStorage.setItem('bauto_hub_token', respuesta.hubToken);
+      window.location.href = 'index.html';
+    } catch (e) {
+      error.textContent = 'Error al procesar el código de respaldo.';
+      error.classList.add('show');
+    }
+  });
+</script>
+</body>
+</html>

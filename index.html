@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ecosistema BAUTO · Hub Maestro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Lora:ital,wght@1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<link rel="stylesheet" href="estilo-bauto.css">
+</head>
+<body>
+
+<div class="page">
+  <div class="topbar">
+    <div class="session">
+      <button type="button" id="indicador-puerta" title="Puerta grande abierta — clic para cerrar todo">
+        <span class="punto-vivo"></span>
+        <span class="etiqueta">Puerta abierta</span>
+      </button>
+      <span class="session-label" id="session-username">Cargando sesión...</span>
+      <button type="button" id="btn-codigos-respaldo" title="Generar Códigos de Respaldo" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:0 4px;">
+        <span class="material-symbols-outlined">key</span>
+      </button>
+      <a href="enrolar.html" title="Configurar Google Authenticator" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);">
+        <span class="material-symbols-outlined">settings</span>
+      </a>
+      <button type="button" class="btn-refresh" id="btn-refresh" title="Sincronizar">&#8635;</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <img src="https://orbojaca-droid.github.io/bauto-assets/BAUTO_180.png" alt="BAUTO" style="height:44px;width:auto;">
+    <div class="brand-tagline">Ocho módulos, un solo ecosistema.</div>
+  </div>
+
+  <div class="hub-card">
+
+    <!-- GRUPO 1: PUERTA PROPIA (NIVEL 2) -->
+    <div class="group-header">
+      <span class="group-label">PUERTA PROPIA (NIVEL 2)</span>
+      <span class="group-rule"></span>
+      <span class="group-count">2 módulos</span>
+    </div>
+    <div class="grid-heavy">
+      <a class="card heavy clickable" data-proyecto="PLATFORM" href="#" target="_blank" rel="noopener">
+        <div class="card-icon"><span class="material-symbols-outlined">timeline</span></div>
+        <div class="card-body">
+          <div class="card-top" style="justify-content:flex-end;">
+            <span class="status activo"><span class="status-dot"></span>Activo</span>
+          </div>
+          <div class="card-title">PLATFORM</div>
+          <div class="card-desc">Trazabilidad de producción por etapas y ubicaciones.</div>
+          <div class="card-footer">Puerta propia de 3 factores</div>
+        </div>
+      </a>
+
+      <a class="card heavy clickable" data-proyecto="APPBAUTO" href="#" target="_blank" rel="noopener">
+        <div class="card-icon"><span class="material-symbols-outlined">smartphone</span></div>
+        <div class="card-body">
+          <div class="card-top" style="justify-content:flex-end;">
+            <span class="status activo"><span class="status-dot"></span>Activo</span>
+          </div>
+          <div class="card-title">APPBAUTO</div>
+          <div class="card-desc">App de celular: ventas POS, stock y auditoría física.</div>
+          <div class="card-footer">Puerta propia de 3 factores</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- GRUPO 2: CON APROBACIÓN POR TOQUE (NIVEL 3) -->
+    <div class="group-header">
+      <span class="group-label">CON APROBACIÓN POR TOQUE</span>
+      <span class="group-rule"></span>
+      <span class="group-count">3 módulos</span>
+    </div>
+    <div class="grid-light">
+      <a class="card light clickable" data-proyecto="QR" href="#" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-icon"><span class="material-symbols-outlined">qr_code_2</span></div>
+          <span class="status activo"><span class="status-dot"></span>Activo</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">QR</div>
+          <div class="card-desc">Panel de etiquetas térmicas y arqueos QR.</div>
+        </div>
+        <div class="card-footer">Aprobación rápida</div>
+      </a>
+
+      <a class="card light clickable" data-proyecto="AGENTE" href="#" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-icon"><span class="material-symbols-outlined">smart_toy</span></div>
+          <span class="status activo"><span class="status-dot"></span>Activo</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">AGENTE</div>
+          <div class="card-desc">Asistente WhatsApp y catálogo con IA Gemini.</div>
+        </div>
+        <div class="card-footer">Aprobación rápida</div>
+      </a>
+
+      <a class="card light clickable" data-proyecto="CATALOGUE" href="#" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-icon"><span class="material-symbols-outlined">storefront</span></div>
+          <span class="status activo"><span class="status-dot"></span>Activo</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">CATALOGUE</div>
+          <div class="card-desc">Centro de mando del catálogo público en Vercel.</div>
+        </div>
+        <div class="card-footer">Aprobación rápida</div>
+      </a>
+    </div>
+
+    <!-- GRUPO 3: HOJAS DE CÁLCULO (NIVEL 3) -->
+    <div class="group-header">
+      <span class="group-label">HOJAS DE CÁLCULO</span>
+      <span class="group-rule"></span>
+      <span class="group-count">3 módulos</span>
+    </div>
+    <div class="grid-light">
+      <a class="card light clickable" data-proyecto="STOCK" href="#" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-icon"><span class="material-symbols-outlined">inventory_2</span></div>
+          <span class="status activo"><span class="status-dot"></span>Activo</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">STOCK</div>
+          <div class="card-desc">Planilla Master Stock DB con menú BAUTO.</div>
+        </div>
+        <div class="card-footer">Google Sheets</div>
+      </a>
+
+      <a class="card light clickable" data-proyecto="VENTAS" href="#" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-icon"><span class="material-symbols-outlined">point_of_sale</span></div>
+          <span class="status activo"><span class="status-dot"></span>Activo</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">VENTAS</div>
+          <div class="card-desc">Planilla Ventas DB con panel inteligente.</div>
+        </div>
+        <div class="card-footer">Google Sheets</div>
+      </a>
+
+      <a class="card light clickable" data-proyecto="PRODUCCION" href="#" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-icon"><span class="material-symbols-outlined">precision_manufacturing</span></div>
+          <span class="status activo"><span class="status-dot"></span>Activo</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">PRODUCCIÓN</div>
+          <div class="card-desc">Planilla Producción DB con costeo y corte.</div>
+        </div>
+        <div class="card-footer">Google Sheets</div>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script src="config-web.js"></script>
+<script>
+(async function () {
+  const token = localStorage.getItem('bauto_hub_token');
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    const respuesta = await fetch(HUB_URL + '?accion=verificarSesion&token=' + encodeURIComponent(token))
+      .then(r => r.json());
+
+    if (!respuesta.valid) {
+      localStorage.removeItem('bauto_hub_token');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const userNameUpper = (respuesta.user || 'Admin').toUpperCase();
+    document.getElementById('session-username').textContent = userNameUpper + ' · Admin';
+
+    /**
+     * @BAUTO_REFACTOR 2026-08-31
+     * @Modulo: 0. HUB
+     * @Propósito: Aviso obligatorio (Tarea 14, Paso 5) cuando la sesión activa entró
+     *             por el camino de niveles desactivados — se identifica por el
+     *             usuario especial "sin-niveles" que devuelve entrarSinNiveles().
+     * @Capa: Capa 2 - Seguridad de Sesión
+     * @Riesgo_Evaluado: Bajo - solo un aviso visual, no cambia ningún permiso.
+     */
+    if (respuesta.user === 'sin-niveles') {
+      const aviso = document.createElement('div');
+      aviso.textContent = '⚠ NIVELES DE ACCESO DESACTIVADOS — el sistema está completamente abierto.';
+      aviso.style.cssText = 'background:#B85C38;color:#fff;text-align:center;padding:10px;font-weight:700;font-size:13px;';
+      document.body.prepend(aviso);
+    }
+
+    // Enlaces de producción oficiales (resueltos en memoria tras validar sesión)
+    const linksReales = {
+      PLATFORM: 'https://script.google.com/macros/s/AKfycbx4Ken9xX1lsaVtkzfxaYaAk2S4H6e3-9fAlH-iJg4xWkrDSgkqqkOUm_rGA7WPWSk/exec?hubToken=' + encodeURIComponent(token),
+      APPBAUTO: 'https://script.google.com/macros/s/AKfycbzB6gSJwqTC7xHgzzYhR1V6nfsTJEgva83pvIvVxjb7xjvrnEjeuZGhJdv3kJpw2KA/exec?hubToken=' + encodeURIComponent(token),
+      QR: 'https://script.google.com/macros/s/AKfycbzgxTek6adEZAkV0SCDh4CYg-d6sE-pJuzCYYVteJDIo8A6v3rIkivRyXUOjD4MAQE/exec?hubToken=' + encodeURIComponent(token),
+      CATALOGUE: 'https://script.google.com/macros/s/AKfycbwq3eGCPItE3_vWRuKOAavKpYvBAJa4icW5Q-T5dIFF_2MNdFISXQEG9yUCUqRLhwR5/exec?hubToken=' + encodeURIComponent(token),
+      AGENTE: 'https://script.google.com/macros/s/AKfycbwAGENTE_PLACEHOLDER/exec?hubToken=' + encodeURIComponent(token),
+      STOCK: 'https://docs.google.com/spreadsheets/d/1cKL-Rt04R6e_Xdesg_2RkQufN6DKmTcSQpxVVTySZxg/edit',
+      VENTAS: 'https://docs.google.com/spreadsheets/d/1tZeAgLCeeYpeesZQhxvtGNqKI6d9qfOZyYWCdAMzSH0/edit',
+      PRODUCCION: 'https://docs.google.com/spreadsheets/d/169kfhh-Zs1kPWyymLZr8RPsbzyQ9n-ysMi1zjd-IneU/edit'
+    };
+
+    // @BAUTO_REFACTOR 2026-08-30: Solo habilitar los proyectos explícitamente permitidos (sin fallbacks permisivos)
+    const permitidos = Array.isArray(respuesta.proyectos) ? respuesta.proyectos : [];
+
+    document.querySelectorAll('[data-proyecto]').forEach(function (tarjeta) {
+      const proj = tarjeta.dataset.proyecto;
+      if (linksReales[proj] && permitidos.includes(proj)) {
+        tarjeta.href = linksReales[proj];
+      } else {
+        tarjeta.classList.add('disabled');
+        tarjeta.removeAttribute('href');
+      }
+    });
+
+  } catch (err) {
+    console.error('Error al verificar sesión:', err);
+  }
+
+  // Botón indicador: cerrar todo (kill-switch central)
+  document.getElementById('indicador-puerta').addEventListener('click', async function () {
+    if (!confirm('¿Deseas cerrar la puerta grande y tumbar todas las sesiones activas de los 8 proyectos?')) return;
+    try {
+      await fetch(HUB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ accion: 'cerrarTodo', hubToken: token })
+      });
+    } catch (e) {
+      console.error(e);
+    }
+    localStorage.removeItem('bauto_hub_token');
+    window.location.href = 'login.html';
+  });
+
+  document.getElementById('btn-refresh').addEventListener('click', function () {
+    window.location.reload();
+  });
+
+  // Códigos de respaldo
+  const btnRespaldo = document.getElementById('btn-codigos-respaldo');
+  const modalRespaldo = document.getElementById('modal-respaldo');
+  const listaCodigos = document.getElementById('lista-codigos-respaldo');
+  const btnCerrarModal = document.getElementById('btn-cerrar-modal-respaldo');
+  const btnCopiar = document.getElementById('btn-copiar-codigos');
+  let codigosGenerados = [];
+
+  if (btnRespaldo) {
+    btnRespaldo.addEventListener('click', async function () {
+      if (!confirm('¿Deseas generar 10 nuevos códigos de respaldo? Los códigos anteriores que no hayas usado quedarán invalidados.')) return;
+      try {
+        const res = await fetch(HUB_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ accion: 'generarCodigosRespaldo', hubToken: token })
+        }).then(r => r.json());
+
+        if (res.success && res.codigos) {
+          codigosGenerados = res.codigos;
+          listaCodigos.innerHTML = res.codigos.map(function (c) {
+            return '<div style="padding:4px;background:#fff;border:1px solid #e0e0e0;border-radius:4px;">' + c + '</div>';
+          }).join('');
+          modalRespaldo.style.display = 'flex';
+        } else {
+          alert('Error al generar códigos: ' + (res.error || 'Intenta nuevamente'));
+        }
+      } catch (e) {
+        alert('Error de conexión al generar códigos de respaldo.');
+      }
+    });
+  }
+
+  if (btnCerrarModal) {
+    btnCerrarModal.addEventListener('click', function () {
+      modalRespaldo.style.display = 'none';
+    });
+  }
+
+  if (btnCopiar) {
+    btnCopiar.addEventListener('click', function () {
+      if (codigosGenerados.length > 0) {
+        navigator.clipboard.writeText(codigosGenerados.join('\n'));
+        alert('10 códigos copiados al portapapeles.');
+      }
+    });
+  }
+})();
+</script>
+
+<!-- Modal Códigos de Respaldo -->
+<div id="modal-respaldo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:24px;border-radius:16px;max-width:420px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.2);box-sizing:border-box;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span class="material-symbols-outlined" style="color:var(--accent,#d35400);">key</span>
+      <h3 style="margin:0;font-size:18px;color:#1a1a1a;">Códigos de Respaldo</h3>
+    </div>
+    <p style="font-size:12px;color:#d9534f;font-weight:600;margin-bottom:14px;line-height:1.4;">
+      ⚠️ Anota o imprime estos 10 códigos ahora. No se volverán a mostrar y cada uno sirve una sola vez para emergencias.
+    </p>
+    <div id="lista-codigos-respaldo" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-family:monospace;font-size:13px;background:#f5f5f5;padding:12px;border-radius:8px;margin-bottom:16px;text-align:center;font-weight:bold;letter-spacing:0.05em;color:#1a1a1a;"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button type="button" id="btn-copiar-codigos" style="padding:8px 14px;border-radius:8px;cursor:pointer;background:#e5e5e5;border:none;font-weight:600;font-size:13px;">Copiar</button>
+      <button type="button" id="btn-cerrar-modal-respaldo" style="padding:8px 14px;border-radius:8px;cursor:pointer;background:#1a1a1a;color:#fff;border:none;font-weight:600;font-size:13px;">Entendido</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

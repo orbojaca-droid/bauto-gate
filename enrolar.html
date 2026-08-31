@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configurar Google Authenticator · BAUTO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<link rel="stylesheet" href="estilo-bauto.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="login-panel-box" style="max-width:480px;">
+    <div class="login-card" style="padding:36px 28px;">
+      <div class="login-title-row">
+        <h2>Google Authenticator</h2>
+        <p style="font-size:13px;color:var(--text-secondary);margin:6px 0 16px;">
+          Escanea este código QR con la app Google Authenticator de tu teléfono personal
+        </p>
+      </div>
+
+      <div style="display:flex;justify-content:center;margin:12px 0;">
+        <canvas id="qr-canvas" style="border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.08);background:#fff;padding:8px;"></canvas>
+      </div>
+
+      <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:12px;" id="texto-secreto">
+        Cargando clave secreta...
+      </div>
+
+      <div class="input-group">
+        <input type="text" class="input-field code" id="input-confirmacion" placeholder="· · · · · ·" maxlength="6" inputmode="numeric">
+      </div>
+      <div class="field-error" id="error-enrolar">Código incorrecto.</div>
+
+      <div class="login-footer-row">
+        <button type="button" class="btn-pill-disc" id="btn-confirmar">
+          <span class="btn-pill-disc-label">Confirmar e Inscribir</span>
+          <span class="btn-pill-disc-arrow">
+            <span class="material-symbols-outlined">check</span>
+          </span>
+        </button>
+      </div>
+
+      <div style="text-align:center;margin-top:8px;">
+        <a href="index.html" style="font-size:12px;color:var(--text-secondary);text-decoration:underline;">Volver al Hub</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="config-web.js"></script>
+<script>
+(async function () {
+  const token = localStorage.getItem('bauto_hub_token');
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  let usuarioActual = null;
+  try {
+    const sesion = await fetch(HUB_URL + '?accion=verificarSesion&token=' + encodeURIComponent(token))
+      .then(r => r.json());
+
+    if (!sesion.valid) {
+      localStorage.removeItem('bauto_hub_token');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    usuarioActual = sesion.user;
+
+    const resSecreto = await fetch(HUB_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ accion: 'generarSecretoTotp', hubToken: token })
+    }).then(r => r.json());
+
+    if (resSecreto.otpauthUrl) {
+      QRCode.toCanvas(document.getElementById('qr-canvas'), resSecreto.otpauthUrl, { width: 180, margin: 1 });
+      document.getElementById('texto-secreto').textContent = 'Clave manual: ' + resSecreto.secreto;
+    }
+  } catch (e) {
+    document.getElementById('texto-secreto').textContent = 'Error al generar el código QR.';
+  }
+
+  document.getElementById('btn-confirmar').addEventListener('click', async function () {
+    const codigo = document.getElementById('input-confirmacion').value.trim();
+    const error = document.getElementById('error-enrolar');
+    if (codigo.length !== 6) {
+      error.textContent = 'Escribe el código de 6 dígitos que muestra tu app.';
+      error.classList.add('show');
+      return;
+    }
+    error.classList.remove('show');
+
+    try {
+      const resConfirmar = await fetch(HUB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ accion: 'confirmarEnrolamientoTotp', hubToken: token, codigo: codigo })
+      }).then(r => r.json());
+
+      if (!resConfirmar.success) {
+        error.textContent = resConfirmar.error || 'Código incorrecto.';
+        error.classList.add('show');
+        return;
+      }
+
+      alert('¡Google Authenticator inscrito con éxito!');
+      window.location.href = 'index.html';
+    } catch (e) {
+      error.textContent = 'Error al confirmar.';
+      error.classList.add('show');
+    }
+  });
+})();
+</script>
+</body>
+</html>

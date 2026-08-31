@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acceso Tienda · BAUTO</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+  /* Valores oficiales de 0. PLATFORM/Estilo.html líneas 2491-2607 */
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F5F5F5;
+    font-family: 'Lato', sans-serif;
+  }
+  .login-banner {
+    width: 250px;
+    max-width: 90%;
+    padding: 50px 30px;
+    background-color: rgba(245, 245, 245, 0.8);
+    border-radius: 40px;
+    box-shadow: 0 10px 40px rgba(44, 44, 44, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .login-banner .logo {
+    margin-bottom: 40px;
+    max-width: 200px;
+  }
+  #estado {
+    font-family: 'Montserrat', sans-serif;
+    color: #4A4A4A;
+    font-size: 1.05rem;
+    text-align: center;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+<div class="login-banner">
+  <img src="https://i.imgur.com/ycdoIbE.png" alt="Logo de BAUTO" class="logo">
+  <p id="estado">Verificando autorización del día...</p>
+  <div id="contenedor-accion" style="display:none;margin-top:16px;"></div>
+</div>
+<script src="config-web.js"></script>
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const esModoRespuesta = urlParams.get('responder') === '1';
+  const estadoEl = document.getElementById('estado');
+  const accionEl = document.getElementById('contenedor-accion');
+
+  if (esModoRespuesta) {
+    const token = localStorage.getItem('bauto_hub_token');
+    if (!token) {
+      estadoEl.textContent = 'Para autorizar la apertura de la tienda, debes tener la sesión de la Puerta Maestra abierta en este dispositivo.';
+      accionEl.style.display = 'block';
+      accionEl.innerHTML = '<a href="login.html" style="display:inline-block;padding:10px 20px;background:#1a1a1a;color:#fff;text-decoration:none;border-radius:20px;font-size:13px;font-weight:bold;">Iniciar sesión en el Hub</a>';
+    } else {
+      estadoEl.textContent = '¿Deseas autorizar el acceso de Heyder a Platform por el día de hoy?';
+      accionEl.style.display = 'block';
+      accionEl.innerHTML = '<button type="button" id="btn-autorizar-tienda" style="padding:12px 24px;background:#1a1a1a;color:#fff;border:none;border-radius:24px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;">Autorizar Apertura de Hoy</button>';
+
+      document.getElementById('btn-autorizar-tienda').addEventListener('click', async function () {
+        this.disabled = true;
+        estadoEl.textContent = 'Autorizando apertura...';
+        try {
+          const res = await fetch(HUB_URL + '?accion=responderSolicitudDiaria&hubToken=' + encodeURIComponent(token) + '&aprobador=Admin')
+            .then(r => r.json());
+
+          if (res.success) {
+            estadoEl.textContent = '¡Apertura de la tienda autorizada con éxito para hoy!';
+            accionEl.innerHTML = '<a href="index.html" style="display:inline-block;margin-top:12px;padding:8px 16px;background:#2c2c2c;color:#fff;text-decoration:none;border-radius:20px;font-size:12px;">Volver al Hub</a>';
+          } else {
+            estadoEl.textContent = res.error || 'No se pudo autorizar la apertura.';
+            accionEl.style.display = 'none';
+          }
+        } catch (err) {
+          estadoEl.textContent = 'Error de conexión al autorizar.';
+          accionEl.style.display = 'none';
+        }
+      });
+    }
+  } else {
+    fetch(HUB_URL + '?accion=verificarHabilitacionHoy')
+      .then(r => r.json())
+      .then(function (respuesta) {
+        if (respuesta.habilitado) {
+          window.location.href = 'https://script.google.com/macros/s/AKfycbx4Ken9xX1lsaVtkzfxaYaAk2S4H6e3-9fAlH-iJg4xWkrDSgkqqkOUm_rGA7WPWSk/exec?accesoTienda=1';
+        } else {
+          estadoEl.textContent =
+            'Todavía no está autorizada la apertura de hoy. Espera la confirmación de administración.';
+        }
+      })
+      .catch(function () {
+        estadoEl.textContent = 'Error de conexión. Intenta de nuevo.';
+      });
+  }
+</script>
+</body>
+</html>
