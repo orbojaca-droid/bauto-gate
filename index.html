@@ -22,25 +22,43 @@
     <span class="session-label" id="session-username">Cargando sesión...</span>
   </div>
   <div class="topbar-actions">
-    <button type="button" id="btn-codigos-respaldo" title="Generar Códigos de Respaldo" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:0 4px;">
-      <span class="material-symbols-outlined">key</span>
-    </button>
-    
-    <button type="button" id="btn-telemetry" title="Salud del Ecosistema" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:0 4px;position:relative;">
-      <span class="material-symbols-outlined" id="telemetry-icon">monitor_heart</span>
-      <span id="telemetry-dot" style="display:none;position:absolute;top:0;right:2px;width:8px;height:8px;background:#DC2626;border-radius:50%;"></span>
-    </button>
-    <a href="enrolar.html" title="Configurar Google Authenticator" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);">
-      <span class="material-symbols-outlined">settings</span>
-    </a>
-    <button type="button" class="btn-refresh" id="btn-refresh" title="Sincronizar">&#8635;</button>
+    <div class="side-button-wrapper">
+      <button type="button" id="btn-codigos-respaldo" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:0 4px;">
+        <span class="material-symbols-outlined">key</span>
+      </button>
+      <span class="side-button-label">Generar Códigos de Respaldo</span>
+    </div>
+
+    <div class="side-button-wrapper">
+      <button type="button" id="btn-telemetry" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:0 4px;position:relative;">
+        <span class="material-symbols-outlined" id="telemetry-icon">monitor_heart</span>
+        <span id="telemetry-dot" style="display:none;position:absolute;top:0;right:2px;width:8px;height:8px;background:#DC2626;border-radius:50%;"></span>
+      </button>
+      <span class="side-button-label">Salud del Ecosistema</span>
+    </div>
+    <div class="side-button-wrapper">
+      <a href="enrolar.html" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);">
+        <span class="material-symbols-outlined">settings</span>
+      </a>
+      <span class="side-button-label">Configurar Google Authenticator</span>
+    </div>
+    <div class="side-button-wrapper">
+      <button type="button" class="btn-refresh" id="btn-refresh">&#8635;</button>
+      <span class="side-button-label">Sincronizar</span>
+    </div>
     <span class="topbar-divider"></span>
-    <button type="button" id="btn-cerrar-mi-sesion" title="Cerrar mi sesión" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:0 4px;">
-      <span class="material-symbols-outlined">logout</span>
-    </button>
-    <button type="button" id="btn-apagar-todo" title="Apagar todo (emergencia)" style="font-size:18px;display:flex;align-items:center;color:#fff;background:#DC2626;border:none;border-radius:50%;width:28px;height:28px;justify-content:center;cursor:pointer;">
-      <span class="material-symbols-outlined" style="font-size:16px;">power_settings_new</span>
-    </button>
+    <div class="side-button-wrapper">
+      <button type="button" id="btn-cerrar-mi-sesion" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:0 4px;">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+      <span class="side-button-label">Cerrar mi sesión</span>
+    </div>
+    <div class="side-button-wrapper">
+      <button type="button" id="btn-apagar-todo" style="font-size:18px;display:flex;align-items:center;color:#fff;background:#DC2626;border:none;border-radius:50%;width:28px;height:28px;justify-content:center;cursor:pointer;">
+        <span class="material-symbols-outlined" style="font-size:16px;">power_settings_new</span>
+      </button>
+      <span class="side-button-label">Apagar todo (emergencia)</span>
+    </div>
   </div>
 </div>
 
