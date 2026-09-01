@@ -610,7 +610,26 @@ a {
   width: auto;
   object-fit: contain;
   display: block;
-  margin: 0 auto 24px auto;
+  margin: 0 auto 4px auto;
+}
+
+/* @BAUTO_REFACTOR 2026-09-01
+ * @Modulo: 0. HUB
+ * @Propósito: Subtítulo de proyecto bajo el logo del login, obligatorio por
+ *             BRAND_AND_DESIGN_SYSTEM.md sección 6.9. Valores copiados literalmente de
+ *             0. QR/Login.html (Tailwind mb-1/mb-6/tracking-widest traducidos a px/em).
+ * @Capa: Estética
+ * @Riesgo_Evaluado: Bajo
+ */
+.login-project-tag {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  font-family: var(--font-family-body);
+  color: var(--color-gris-piedra);
+  text-align: center;
+  margin: 0 0 24px 0;
 }
 
 /* NUEVOS ESTILOS TOPBAR 2026-08-31 */
@@ -618,6 +637,51 @@ a {
 .session-info { display:flex; align-items:center; gap:10px; }
 .topbar-actions { display:flex; align-items:center; gap:8px; }
 .topbar-divider { width:1px; height:20px; background:var(--border-warm); margin:0 4px; }
+
+/* @BAUTO_REFACTOR 2026-09-01
+ * @Modulo: 0. HUB
+ * @Propósito: Tooltips de marca para los botones de la topbar. Mecánica (wrapper +
+ *             label absoluto + hover) tomada de 0. PLATFORM/Estilo.html
+ *             .side-button-label; color y tipografía NO — usa el vidrio oscuro ya
+ *             aprobado en BRAND_AND_DESIGN_SYSTEM.md sección 6.8 (toasts) y la
+ *             fuente propia del HUB, nunca Montserrat ni --toolbar-label-bg de PLATFORM.
+ * @Capa: Estética
+ * @Riesgo_Evaluado: Bajo
+ */
+.side-button-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.side-button-label {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(28, 25, 23, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #faf9f6;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font-family-body);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 160ms ease, transform 160ms ease;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.side-button-wrapper:hover .side-button-label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 
 
 /* TELEMETRIA FASE 5 */
