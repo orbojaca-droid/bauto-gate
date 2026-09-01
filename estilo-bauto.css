@@ -612,3 +612,9 @@ a {
   display: block;
   margin: 0 auto 24px auto;
 }
+
+/* NUEVOS ESTILOS TOPBAR 2026-08-31 */
+.topbar { display:flex; justify-content:space-between; align-items:center; }
+.session-info { display:flex; align-items:center; gap:10px; }
+.topbar-actions { display:flex; align-items:center; gap:8px; }
+.topbar-divider { width:1px; height:20px; background:var(--border-warm); margin:0 4px; }
