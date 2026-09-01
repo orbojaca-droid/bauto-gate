@@ -618,3 +618,24 @@ a {
 .session-info { display:flex; align-items:center; gap:10px; }
 .topbar-actions { display:flex; align-items:center; gap:8px; }
 .topbar-divider { width:1px; height:20px; background:var(--border-warm); margin:0 4px; }
+
+
+/* TELEMETRIA FASE 5 */
+.service-offline {
+  filter: grayscale(100%) opacity(0.7);
+  border-color: #fca5a5 !important;
+  position: relative;
+}
+.service-offline::after {
+  content: '⚠️ INESTABLE';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ef4444;
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}

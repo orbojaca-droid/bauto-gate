@@ -25,6 +25,11 @@
     <button type="button" id="btn-codigos-respaldo" title="Generar Códigos de Respaldo" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:0 4px;">
       <span class="material-symbols-outlined">key</span>
     </button>
+    
+    <button type="button" id="btn-telemetry" title="Salud del Ecosistema" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:0 4px;position:relative;">
+      <span class="material-symbols-outlined" id="telemetry-icon">monitor_heart</span>
+      <span id="telemetry-dot" style="display:none;position:absolute;top:0;right:2px;width:8px;height:8px;background:#DC2626;border-radius:50%;"></span>
+    </button>
     <a href="enrolar.html" title="Configurar Google Authenticator" style="font-size:18px;display:flex;align-items:center;color:var(--text-secondary);">
       <span class="material-symbols-outlined">settings</span>
     </a>
@@ -285,6 +290,82 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
   });
 
   // Códigos de respaldo
+  
+  // Telemetria (Fase 5) - Optimistic UI Async Fetch
+  const btnTelemetry = document.getElementById('btn-telemetry');
+  const modalTelemetry = document.getElementById('modal-telemetry');
+  const listaTelemetria = document.getElementById('lista-telemetria');
+  const btnCerrarTelemetry = document.getElementById('btn-cerrar-modal-telemetry');
+  const iconTelemetry = document.getElementById('telemetry-icon');
+  const dotTelemetry = document.getElementById('telemetry-dot');
+
+  if (btnTelemetry && token) {
+    // 1. Abrir/Cerrar Modal
+    btnTelemetry.addEventListener('click', () => { modalTelemetry.style.display = 'flex'; });
+    btnCerrarTelemetry.addEventListener('click', () => { modalTelemetry.style.display = 'none'; });
+    
+    // 2. Fetch asincrono background
+    setTimeout(async () => {
+      try {
+        const res = await fetch(HUB_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ accion: 'obtenerSaludEcosistema', hubToken: token })
+        }).then(r => r.json());
+
+        if (res.success && res.semaforos) {
+          let htmlRender = '';
+          let hayPeligro = false;
+
+          for (const [proyecto, datos] of Object.entries(res.semaforos)) {
+            let color = '#22c55e'; // ONLINE verde
+            let icon = 'check_circle';
+            let extraStyle = '';
+            
+            if (datos.estado === 'WARNING') { color = '#f59e0b'; icon = 'warning'; }
+            if (datos.estado === 'OFFLINE' || datos.estado === 'ERROR') { 
+                color = '#ef4444'; 
+                icon = 'error'; 
+                hayPeligro = true; 
+                // Aplicar grayscale a la tarjeta del DOM si está caído
+                const tarjeta = document.querySelector(`[data-proyecto="${proyecto.replace('0. ', '').replace('1. ', '').replace('2. ', '').replace('3. ', '')}"]`);
+                if(tarjeta) {
+                    tarjeta.classList.add('service-offline');
+                    tarjeta.title = "Servicio inestable: " + (datos.mensaje || 'Desconocido');
+                }
+            }
+            if (datos.estado === 'DESCONOCIDO') { color = '#94a3b8'; icon = 'help'; }
+
+            htmlRender += `
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <span class="material-symbols-outlined" style="color:${color};font-size:20px;">${icon}</span>
+                  <div style="display:flex;flex-direction:column;">
+                    <span style="font-size:13px;font-weight:700;color:#1e293b;">${proyecto}</span>
+                    ${datos.mensaje ? `<span style="font-size:11px;color:#64748b;">${datos.mensaje}</span>` : ''}
+                  </div>
+                </div>
+                <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:12px;background:${color}20;color:${color};">${datos.estado}</span>
+              </div>
+            `;
+          }
+          
+          listaTelemetria.innerHTML = htmlRender;
+
+          if (hayPeligro) {
+             iconTelemetry.style.color = '#ef4444';
+             dotTelemetry.style.display = 'block';
+          }
+
+        } else if (res.error) {
+           listaTelemetria.innerHTML = `<div style="text-align:center;color:#ef4444;font-size:13px;">${res.error}</div>`;
+        }
+      } catch(e) {
+         console.error('Error cargando telemetria', e);
+      }
+    }, 1000); // 1 sec delay para priorizar render inicial
+  }
+
   const btnRespaldo = document.getElementById('btn-codigos-respaldo');
   const modalRespaldo = document.getElementById('modal-respaldo');
   const listaCodigos = document.getElementById('lista-codigos-respaldo');
@@ -351,5 +432,22 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
     </div>
   </div>
 </div>
+
+<!-- Modal Telemetria -->
+<div id="modal-telemetry" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:24px;border-radius:16px;max-width:480px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.2);box-sizing:border-box;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <span class="material-symbols-outlined" style="color:#0ea5e9;">monitor_heart</span>
+      <h3 style="margin:0;font-size:18px;color:#1a1a1a;">Salud del Ecosistema</h3>
+    </div>
+    <div id="lista-telemetria" style="display:grid;gap:10px;max-height:60vh;overflow-y:auto;padding-right:8px;margin-bottom:16px;">
+       <div style="text-align:center;font-size:13px;color:#888;">Cargando métricas en vivo...</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;">
+      <button type="button" id="btn-cerrar-modal-telemetry" style="padding:8px 14px;border-radius:8px;cursor:pointer;background:#1a1a1a;color:#fff;border:none;font-weight:600;font-size:13px;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
