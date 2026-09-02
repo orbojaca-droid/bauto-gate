@@ -413,6 +413,35 @@ a {
   background: #F2F0EB;
 }
 
+/* @BAUTO_REFACTOR 2026-09-01
+ * @Modulo: 0. HUB
+ * @Propósito: Categoría 1 (Círculo de gesto) de BRAND_AND_DESIGN_SYSTEM.md sección 5 —
+ *             mismo tratamiento visual que .btn-refresh (círculo de vidrio), para los
+ *             gestos de la topbar que hasta ahora eran íconos sueltos sin círculo:
+ *             códigos de respaldo, salud del ecosistema, cerrar sesión.
+ * @Capa: Estética
+ * @Riesgo_Evaluado: Bajo
+ */
+.btn-circle-glass {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--text-primary);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-circle-glass:hover {
+  background: #F2F0EB;
+}
+
 .hero {
   display: flex;
   flex-direction: column;
