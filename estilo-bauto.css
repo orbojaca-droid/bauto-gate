@@ -407,10 +407,15 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 10px rgba(184, 92, 56, 0.25),
+              0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-refresh:hover {
   background: #F2F0EB;
+  box-shadow: 0 0 14px rgba(184, 92, 56, 0.4),
+              0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 /* @BAUTO_REFACTOR 2026-09-01
@@ -436,10 +441,15 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 10px rgba(184, 92, 56, 0.25),
+              0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-circle-glass:hover {
   background: #F2F0EB;
+  box-shadow: 0 0 14px rgba(184, 92, 56, 0.4),
+              0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .hero {
