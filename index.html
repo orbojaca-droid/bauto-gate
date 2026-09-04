@@ -323,44 +323,79 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ accion: 'obtenerSaludEcosistema', hubToken: token })
         }).then(r => r.json());
-
-        if (res.success && res.semaforos) {
+        
+        if (res.success) {
+          const semaforos = res.semaforos || {};
+          const otrasSenales = res.otrasSenales || {};
           let htmlRender = '';
           let hayPeligro = false;
+          
+          const getColor = (estado) => {
+            const e = estado.toUpperCase();
+            if (e === 'ONLINE' || e === 'ACTIVO' || e === 'OK') return '#16A34A'; // éxito
+            if (e === 'WARNING' || e === 'ADVERTENCIA') return '#CA8A04'; // advertencia
+            if (e === 'OFFLINE' || e === 'ERROR') return '#DC2626'; // error real — nunca el terracota de marca, se confundiría con branding normal
+            return '#6E6E6E'; // Gris desconocido por defecto (Bug corregido)
+          };
 
-          for (const [proyecto, datos] of Object.entries(res.semaforos)) {
-            let color = '#22c55e'; // ONLINE verde
-            let icon = 'check_circle';
-            let extraStyle = '';
-            
-            if (datos.estado === 'WARNING') { color = '#f59e0b'; icon = 'warning'; }
-            if (datos.estado === 'OFFLINE' || datos.estado === 'ERROR') { 
-                color = '#ef4444'; 
-                icon = 'error'; 
-                hayPeligro = true; 
-                // Aplicar grayscale a la tarjeta del DOM si está caído
-                const tarjeta = document.querySelector(`[data-proyecto="${proyecto.replace('0. ', '').replace('1. ', '').replace('2. ', '').replace('3. ', '')}"]`);
-                if(tarjeta) {
-                    tarjeta.classList.add('service-offline');
-                    tarjeta.title = "Servicio inestable: " + (datos.mensaje || 'Desconocido');
-                }
-            }
-            if (datos.estado === 'DESCONOCIDO') { color = '#94a3b8'; icon = 'help'; }
+          // Color propio del punto de despliegue (indicador 2) — independiente del disco
+          // principal (indicador 1). ultimoDespliegue llega como "OK — 03/09 14:20 — ..."
+          // o "FALLO — ...", o vacío si nunca corrió una prueba post-despliegue.
+          const getDeployColor = (ultimoDespliegue) => {
+            if (!ultimoDespliegue) return null;
+            return ultimoDespliegue.toUpperCase().indexOf('OK') === 0 ? '#16A34A' : '#DC2626';
+          };
+
+          htmlRender += `<div style="font-family:'Sora',sans-serif;font-weight:600;font-size:12px;color:#1C1917;margin-bottom:8px;">PROYECTOS</div>`;
+          for (const proyecto in semaforos) {
+            const datos = semaforos[proyecto];
+            const color = getColor(datos.estado);
+            if (color !== '#16A34A') hayPeligro = true;
+            const deployColor = getDeployColor(datos.ultimoDespliegue);
 
             htmlRender += `
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+              <div class="prov-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #E9F1FA;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                  <span class="material-symbols-outlined" style="color:${color};font-size:20px;">${icon}</span>
-                  <div style="display:flex;flex-direction:column;">
+                  <div class="disc-wrap" style="position:relative;">
+                     <div class="disc" style="width:12px;height:12px;border-radius:50%;background:${color};"></div>
+                     ${deployColor ? `<div class="deploy-dot" title="${datos.ultimoDespliegue}" style="position:absolute;top:-2px;right:-2px;width:6px;height:6px;border-radius:50%;background:${deployColor};border:1.5px solid #fff;"></div>` : ''}
+                  </div>
+                  <div style="display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',sans-serif;">
                     <span style="font-size:13px;font-weight:700;color:#1e293b;">${proyecto}</span>
                     ${datos.mensaje ? `<span style="font-size:11px;color:#64748b;">${datos.mensaje}</span>` : ''}
+                    ${datos.ultimoLatido ? `<span style="font-size:9px;color:#9CA3AF;font-family:'Rajdhani',sans-serif;">Latido: ${datos.ultimoLatido}</span>` : ''}
                   </div>
                 </div>
-                <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:12px;background:${color}20;color:${color};">${datos.estado}</span>
+                <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;padding:2px 6px;border-radius:12px;background:${color}20;color:${color};text-transform:uppercase;">${datos.estado}</span>
               </div>
             `;
           }
-          
+
+          htmlRender += `<div style="font-family:'Sora',sans-serif;font-weight:600;font-size:12px;color:#1C1917;margin-top:16px;margin-bottom:8px;">OTRAS SEÑALES</div>`;
+          for (const senal in otrasSenales) {
+            const datos = otrasSenales[senal];
+            const color = getColor(datos.estado);
+            if (color !== '#16A34A') hayPeligro = true;
+            
+            if (senal === 'CUPO GOOGLE') {
+              htmlRender += `<div class="meter-card" style="background:#F2F0EB;padding:8px;border-radius:6px;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif;">
+                <div style="font-size:11px;font-weight:700;color:#1C1917;">${senal}</div>
+                <div style="font-size:11px;color:#6E6E6E;">${datos.mensaje}</div>
+              </div>`;
+            } else if (senal === 'CUADRE STOCK') {
+              htmlRender += `<div class="cuadre-card" style="border:1px solid ${color};padding:8px;border-radius:6px;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif;">
+                <div style="font-size:11px;font-weight:700;color:${color};">${senal}</div>
+                <div style="font-size:10px;color:#1C1917;">${datos.mensaje}</div>
+              </div>`;
+            } else {
+              // PROVEEDORES
+              htmlRender += `
+              <div class="prov-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:#1C1917;">${senal}</div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;color:${color};">${datos.estado}</div>
+              </div>`;
+            }
+          }
           listaTelemetria.innerHTML = htmlRender;
 
           if (hayPeligro) {
