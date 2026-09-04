@@ -741,3 +741,149 @@ a {
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
+
+/**
+ * @BAUTO_REFACTOR 2026-09-04
+ * @Modulo: 0. HUB
+ * @Propósito: Rediseño completo del modal "Salud del Ecosistema" (Pulso BAUTO) usando los
+ *             tokens reales de BRAND_AND_DESIGN_SYSTEM.md — la versión anterior (2026-09-03,
+ *             ejecutada por Gemini) tenía casi todo con estilos inline y valores hex sueltos,
+ *             sin pasar por estas clases. Reemplaza esa versión, no la extiende.
+ * @Capa: Estética
+ * @Riesgo_Evaluado: Bajo
+ */
+.salud-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.salud-card {
+  background: var(--card);
+  border: 1px solid var(--border-warm);
+  border-radius: 32px;
+  padding: 28px 26px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(28, 25, 23, 0.18);
+  box-sizing: border-box;
+}
+
+.salud-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-shrink: 0;
+}
+
+.salud-head .material-symbols-outlined {
+  color: var(--accent-color);
+  font-size: 22px;
+}
+
+.salud-head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--font-family-heading);
+  color: var(--text-primary);
+}
+
+.salud-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-bottom: 18px;
+}
+
+.salud-group-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.salud-loading {
+  text-align: center;
+  font-size: 13px;
+  font-family: var(--font-family-body);
+  color: var(--text-secondary);
+  padding: 20px 0;
+}
+
+.salud-foot {
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.btn-salud-cerrar {
+  padding: 9.5px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--text-primary);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: var(--font-family-body);
+}
+
+/* Grupo Proyectos */
+.proj-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-warm);
+}
+.proj-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+.disc-wrap { position: relative; flex-shrink: 0; width: 12px; height: 12px; }
+.disc { width: 12px; height: 12px; border-radius: 999px; }
+.deploy-dot {
+  position: absolute; top: -2px; right: -2px; width: 6px; height: 6px;
+  border-radius: 999px; border: 1.5px solid var(--card);
+}
+
+.proj-meta { flex: 1; display: flex; flex-direction: column; font-family: var(--font-family-body); min-width: 0; }
+.proj-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.proj-note { font-size: 11px; color: var(--text-secondary); }
+.proj-latido { font-size: 9px; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.02em; margin-top: 1px; }
+
+.proj-badge {
+  font-family: var(--font-family-body); font-size: 9px; font-weight: 700;
+  padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+/* Grupo Otras Señales */
+.meter-card { background: var(--border-warm); padding: 10px 12px; border-radius: 14px; font-family: var(--font-family-body); }
+.meter-title { font-size: 11px; font-weight: 700; color: var(--text-primary); }
+.meter-desc { font-size: 11px; color: var(--text-secondary); font-family: var(--font-mono); margin-top: 2px; }
+
+.prov-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-family: var(--font-family-body); }
+.prov-name { font-size: 11.5px; color: var(--text-primary); }
+.prov-estado { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+
+.cuadre-card { border-radius: 14px; padding: 10px 12px; font-family: var(--font-family-body); border: 1px solid; }
+.cuadre-title { font-size: 11px; font-weight: 700; }
+.cuadre-desc { font-size: 10px; color: var(--text-primary); margin-top: 2px; }
