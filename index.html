@@ -332,70 +332,125 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
           
           const getColor = (estado) => {
             const e = estado.toUpperCase();
-            if (e === 'ONLINE' || e === 'ACTIVO' || e === 'OK') return '#16A34A'; // éxito
-            if (e === 'WARNING' || e === 'ADVERTENCIA') return '#CA8A04'; // advertencia
-            if (e === 'OFFLINE' || e === 'ERROR') return '#DC2626'; // error real — nunca el terracota de marca, se confundiría con branding normal
-            return '#6E6E6E'; // Gris desconocido por defecto (Bug corregido)
+            if (e === 'ONLINE' || e === 'ACTIVO' || e === 'OK') return 'var(--success-color)';
+            if (e === 'WARNING' || e === 'ADVERTENCIA') return 'var(--warning-color)';
+            if (e === 'OFFLINE' || e === 'ERROR') return 'var(--danger-color)'; // error real — nunca el terracota de marca, se confundiría con branding normal
+            return 'var(--text-muted)'; // Gris desconocido por defecto (Bug corregido)
           };
+          const esColorExito = (estado) => estado.toUpperCase() === 'ONLINE' || estado.toUpperCase() === 'ACTIVO' || estado.toUpperCase() === 'OK';
 
           // Color propio del punto de despliegue (indicador 2) — independiente del disco
           // principal (indicador 1). ultimoDespliegue llega como "OK — 03/09 14:20 — ..."
           // o "FALLO — ...", o vacío si nunca corrió una prueba post-despliegue.
           const getDeployColor = (ultimoDespliegue) => {
             if (!ultimoDespliegue) return null;
-            return ultimoDespliegue.toUpperCase().indexOf('OK') === 0 ? '#16A34A' : '#DC2626';
+            return ultimoDespliegue.toUpperCase().indexOf('OK') === 0 ? 'var(--success-color)' : 'var(--danger-color)';
           };
 
-          htmlRender += `<div style="font-family:'Sora',sans-serif;font-weight:600;font-size:12px;color:#1C1917;margin-bottom:8px;">PROYECTOS</div>`;
+          // Formatea una fecha ISO (guardada en UTC) a hora de Bogotá, formato "04Sep26 - 09:53:15".
+          // Se construye a mano en vez de confiar en el nombre de mes que dé el navegador
+          // (varía por configuración regional) para que el formato salga siempre igual.
+          const MESES_CORTOS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+          const formatearFechaBogota = (isoString) => {
+            if (!isoString) return '';
+            const d = new Date(isoString);
+            if (isNaN(d.getTime())) return isoString;
+            const partes = new Intl.DateTimeFormat('en-CA', {
+              timeZone: 'America/Bogota', day: '2-digit', month: '2-digit', year: '2-digit',
+              hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            }).formatToParts(d);
+            const get = (t) => (partes.find(p => p.type === t) || {}).value || '';
+            const dia = get('day');
+            const mes = MESES_CORTOS[parseInt(get('month'), 10) - 1] || '';
+            const anio = get('year');
+            let hora = get('hour'); if (hora === '24') hora = '00';
+            return `${dia}${mes}${anio} - ${hora}:${get('minute')}:${get('second')}`;
+          };
+
+          htmlRender += `<div><span class="salud-group-label">Proyectos</span>`;
           for (const proyecto in semaforos) {
             const datos = semaforos[proyecto];
             const color = getColor(datos.estado);
-            if (color !== '#16A34A') hayPeligro = true;
+            if (!esColorExito(datos.estado)) hayPeligro = true;
             const deployColor = getDeployColor(datos.ultimoDespliegue);
 
             htmlRender += `
-              <div class="prov-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #E9F1FA;">
-                <div style="display:flex;align-items:center;gap:12px;">
-                  <div class="disc-wrap" style="position:relative;">
-                     <div class="disc" style="width:12px;height:12px;border-radius:50%;background:${color};"></div>
-                     ${deployColor ? `<div class="deploy-dot" title="${datos.ultimoDespliegue}" style="position:absolute;top:-2px;right:-2px;width:6px;height:6px;border-radius:50%;background:${deployColor};border:1.5px solid #fff;"></div>` : ''}
-                  </div>
-                  <div style="display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',sans-serif;">
-                    <span style="font-size:13px;font-weight:700;color:#1e293b;">${proyecto}</span>
-                    ${datos.mensaje ? `<span style="font-size:11px;color:#64748b;">${datos.mensaje}</span>` : ''}
-                    ${datos.ultimoLatido ? `<span style="font-size:9px;color:#9CA3AF;font-family:'Rajdhani',sans-serif;">Latido: ${datos.ultimoLatido}</span>` : ''}
-                  </div>
+              <div class="proj-row">
+                <div class="disc-wrap">
+                   <div class="disc" style="background:${color};"></div>
+                   ${deployColor ? `<div class="deploy-dot" title="${datos.ultimoDespliegue}" style="background:${deployColor};"></div>` : ''}
                 </div>
-                <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;padding:2px 6px;border-radius:12px;background:${color}20;color:${color};text-transform:uppercase;">${datos.estado}</span>
+                <div class="proj-meta">
+                  <span class="proj-name">${proyecto}</span>
+                  ${datos.mensaje ? `<span class="proj-note">${datos.mensaje}</span>` : ''}
+                  ${datos.ultimoLatido ? `<span class="proj-latido">Latido: ${formatearFechaBogota(datos.ultimoLatido)}</span>` : ''}
+                </div>
+                <span class="proj-badge" style="background:color-mix(in srgb, ${color} 15%, transparent);color:${color};">${datos.estado}</span>
               </div>
             `;
           }
+          htmlRender += `</div>`;
 
-          htmlRender += `<div style="font-family:'Sora',sans-serif;font-weight:600;font-size:12px;color:#1C1917;margin-top:16px;margin-bottom:8px;">OTRAS SEÑALES</div>`;
+          // Orden fijo, sin importar el orden real de las filas en la hoja: los 4
+          // proveedores siempre juntos y en el mismo orden, luego el cuadre de Stock.
+          const ORDEN_PROVEEDORES = ['PROVEEDOR GEMINI', 'PROVEEDOR MIPAQUETE', 'PROVEEDOR WHATSAPP', 'PROVEEDOR CLAUDE'];
+          let filasProveedores = '';
+          ORDEN_PROVEEDORES.forEach((nombreProveedor) => {
+            const datos = otrasSenales[nombreProveedor];
+            if (!datos) return;
+            const color = getColor(datos.estado);
+            if (!esColorExito(datos.estado)) hayPeligro = true;
+            filasProveedores += `
+              <div class="prov-row">
+                <span class="prov-name">${nombreProveedor}</span>
+                <span class="prov-estado" style="color:${color};">${datos.estado}</span>
+              </div>`;
+          });
+          // Cualquier proveedor futuro no listado arriba todavía se muestra, al final del grupo.
           for (const senal in otrasSenales) {
+            if (ORDEN_PROVEEDORES.includes(senal) || senal === 'CUPO GOOGLE' || senal === 'CUADRE STOCK') continue;
             const datos = otrasSenales[senal];
             const color = getColor(datos.estado);
-            if (color !== '#16A34A') hayPeligro = true;
-            
-            if (senal === 'CUPO GOOGLE') {
-              htmlRender += `<div class="meter-card" style="background:#F2F0EB;padding:8px;border-radius:6px;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif;">
-                <div style="font-size:11px;font-weight:700;color:#1C1917;">${senal}</div>
-                <div style="font-size:11px;color:#6E6E6E;">${datos.mensaje}</div>
+            if (!esColorExito(datos.estado)) hayPeligro = true;
+            filasProveedores += `
+              <div class="prov-row">
+                <span class="prov-name">${senal}</span>
+                <span class="prov-estado" style="color:${color};">${datos.estado}</span>
               </div>`;
-            } else if (senal === 'CUADRE STOCK') {
-              htmlRender += `<div class="cuadre-card" style="border:1px solid ${color};padding:8px;border-radius:6px;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif;">
-                <div style="font-size:11px;font-weight:700;color:${color};">${senal}</div>
-                <div style="font-size:10px;color:#1C1917;">${datos.mensaje}</div>
-              </div>`;
-            } else {
-              // PROVEEDORES
-              htmlRender += `
-              <div class="prov-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:#1C1917;">${senal}</div>
-                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;color:${color};">${datos.estado}</div>
-              </div>`;
-            }
           }
+
+          const cupoGoogle = otrasSenales['CUPO GOOGLE'];
+          const cuadreStock = otrasSenales['CUADRE STOCK'];
+
+          if (cupoGoogle) {
+            htmlRender += `<div>
+              <span class="salud-group-label">Cupo de Google</span>
+              <div class="meter-card">
+                <div class="meter-title">CUPO GOOGLE</div>
+                <div class="meter-desc">${cupoGoogle.mensaje}</div>
+              </div>
+            </div>`;
+          }
+
+          if (filasProveedores) {
+            htmlRender += `<div>
+              <span class="salud-group-label">Proveedores externos</span>
+              ${filasProveedores}
+            </div>`;
+          }
+
+          if (cuadreStock) {
+            const colorCuadre = getColor(cuadreStock.estado);
+            if (!esColorExito(cuadreStock.estado)) hayPeligro = true;
+            htmlRender += `<div>
+              <span class="salud-group-label">Cuadre de Stock</span>
+              <div class="cuadre-card" style="border-color:${colorCuadre};">
+                <div class="cuadre-title" style="color:${colorCuadre};">CUADRE STOCK</div>
+                <div class="cuadre-desc">${cuadreStock.mensaje}</div>
+              </div>
+            </div>`;
+          }
+
           listaTelemetria.innerHTML = htmlRender;
 
           if (hayPeligro) {
@@ -480,17 +535,17 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
 </div>
 
 <!-- Modal Telemetria -->
-<div id="modal-telemetry" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;">
-  <div style="background:#fff;padding:24px;border-radius:16px;max-width:480px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.2);box-sizing:border-box;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-      <span class="material-symbols-outlined" style="color:#0ea5e9;">monitor_heart</span>
-      <h3 style="margin:0;font-size:18px;color:#1a1a1a;">Salud del Ecosistema</h3>
+<div id="modal-telemetry" class="salud-overlay">
+  <div class="salud-card">
+    <div class="salud-head">
+      <span class="material-symbols-outlined">monitor_heart</span>
+      <h3>Salud del Ecosistema</h3>
     </div>
-    <div id="lista-telemetria" style="display:grid;gap:10px;max-height:60vh;overflow-y:auto;padding-right:8px;margin-bottom:16px;">
-       <div style="text-align:center;font-size:13px;color:#888;">Cargando métricas en vivo...</div>
+    <div id="lista-telemetria" class="salud-body">
+       <div class="salud-loading">Cargando métricas en vivo...</div>
     </div>
-    <div style="display:flex;justify-content:flex-end;">
-      <button type="button" id="btn-cerrar-modal-telemetry" style="padding:8px 14px;border-radius:8px;cursor:pointer;background:#1a1a1a;color:#fff;border:none;font-weight:600;font-size:13px;">Cerrar</button>
+    <div class="salud-foot">
+      <button type="button" id="btn-cerrar-modal-telemetry" class="btn-salud-cerrar">Cerrar</button>
     </div>
   </div>
 </div>
