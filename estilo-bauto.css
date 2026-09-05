@@ -821,6 +821,23 @@ a {
   display: block;
 }
 
+/* Subtítulo de nivel (Nivel 1/2/3) dentro del grupo "Proyectos" — visualmente
+   subordinado a .salud-group-label, para que quede claro que sigue siendo el
+   mismo grupo, solo organizado por jerarquía. */
+.salud-subgroup-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 14px 0 6px;
+  display: block;
+}
+.salud-subgroup-label:first-of-type {
+  margin-top: 4px;
+}
+
 .salud-loading {
   text-align: center;
   font-size: 13px;
