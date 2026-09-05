@@ -369,29 +369,44 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
             return `${dia}${mes}${anio} - ${hora}:${get('minute')}:${get('second')}`;
           };
 
-          htmlRender += `<div><span class="salud-group-label">Proyectos</span>`;
-          for (const proyecto in semaforos) {
-            const datos = semaforos[proyecto];
-            const color = getColor(datos.estado);
-            if (!esColorExito(datos.estado)) hayPeligro = true;
-            const deployColor = getDeployColor(datos.ultimoDespliegue);
+          // Niveles del ecosistema, decisión del usuario (2026-09-05) — no es el orden de
+          // TELEMETRIA_SALUD ni de nombresCortos en el backend, es jerarquía real: Nivel 1
+          // (HUB, la puerta de entrada), Nivel 2 (PLATAFORMA y APPBAUTO, los dos "grandes"),
+          // Nivel 3 (los 6 restantes, en 2 subgrupos: primero CATALOGO/QR/AGENTE, luego las
+          // 3 bases de datos PRODUCCION/STOCK/VENTAS). Un proyecto sin fila todavía en
+          // TELEMETRIA_SALUD simplemente no aparece (mismo comportamiento que antes).
+          const NIVELES = [
+            { label: 'Nivel 1', proyectos: ['HUB'] },
+            { label: 'Nivel 2', proyectos: ['PLATAFORMA', 'APPBAUTO'] },
+            { label: 'Nivel 3', proyectos: ['CATALOGO', 'QR', 'AGENTE', 'PRODUCCION', 'STOCK', 'VENTAS'] }
+          ];
 
-            htmlRender += `
-              <div class="proj-row">
-                <div class="disc-wrap">
-                   <div class="disc" style="background:${color};"></div>
-                   ${deployColor ? `<div class="deploy-dot" title="${datos.ultimoDespliegue}" style="background:${deployColor};"></div>` : ''}
+          NIVELES.forEach(nivel => {
+            htmlRender += `<div><span class="salud-group-label">${nivel.label}</span>`;
+            nivel.proyectos.forEach(proyecto => {
+              const datos = semaforos[proyecto];
+              if (!datos) return;
+              const color = getColor(datos.estado);
+              if (!esColorExito(datos.estado)) hayPeligro = true;
+              const deployColor = getDeployColor(datos.ultimoDespliegue);
+
+              htmlRender += `
+                <div class="proj-row">
+                  <div class="disc-wrap">
+                     <div class="disc" style="background:${color};"></div>
+                     ${deployColor ? `<div class="deploy-dot" title="${datos.ultimoDespliegue}" style="background:${deployColor};"></div>` : ''}
+                  </div>
+                  <div class="proj-meta">
+                    <span class="proj-name">${proyecto}</span>
+                    ${datos.mensaje ? `<span class="proj-note">${datos.mensaje}</span>` : ''}
+                    ${datos.ultimoLatido ? `<span class="proj-latido">Latido: ${formatearFechaBogota(datos.ultimoLatido)}</span>` : ''}
+                  </div>
+                  <span class="proj-badge" style="background:color-mix(in srgb, ${color} 15%, transparent);color:${color};">${datos.estado}</span>
                 </div>
-                <div class="proj-meta">
-                  <span class="proj-name">${proyecto}</span>
-                  ${datos.mensaje ? `<span class="proj-note">${datos.mensaje}</span>` : ''}
-                  ${datos.ultimoLatido ? `<span class="proj-latido">Latido: ${formatearFechaBogota(datos.ultimoLatido)}</span>` : ''}
-                </div>
-                <span class="proj-badge" style="background:color-mix(in srgb, ${color} 15%, transparent);color:${color};">${datos.estado}</span>
-              </div>
-            `;
-          }
-          htmlRender += `</div>`;
+              `;
+            });
+            htmlRender += `</div>`;
+          });
 
           // Orden fijo, sin importar el orden real de las filas en la hoja: los 4
           // proveedores siempre juntos y en el mismo orden, luego el cuadre de Stock.
