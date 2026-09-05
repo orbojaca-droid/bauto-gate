@@ -375,14 +375,18 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
           // Nivel 3 (los 6 restantes, en 2 subgrupos: primero CATALOGO/QR/AGENTE, luego las
           // 3 bases de datos PRODUCCION/STOCK/VENTAS). Un proyecto sin fila todavía en
           // TELEMETRIA_SALUD simplemente no aparece (mismo comportamiento que antes).
+          // Corrección del usuario tras ver el resultado: los 3 Niveles son SUBtítulos
+          // dentro del grupo "Proyectos" — no reemplazan ese título, porque si no, no se
+          // entiende que los 3 grupos siguen siendo proyectos.
           const NIVELES = [
             { label: 'Nivel 1', proyectos: ['HUB'] },
             { label: 'Nivel 2', proyectos: ['PLATAFORMA', 'APPBAUTO'] },
             { label: 'Nivel 3', proyectos: ['CATALOGO', 'QR', 'AGENTE', 'PRODUCCION', 'STOCK', 'VENTAS'] }
           ];
 
+          htmlRender += `<div><span class="salud-group-label">Proyectos</span>`;
           NIVELES.forEach(nivel => {
-            htmlRender += `<div><span class="salud-group-label">${nivel.label}</span>`;
+            htmlRender += `<span class="salud-subgroup-label">${nivel.label}</span>`;
             nivel.proyectos.forEach(proyecto => {
               const datos = semaforos[proyecto];
               if (!datos) return;
@@ -405,8 +409,8 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
                 </div>
               `;
             });
-            htmlRender += `</div>`;
           });
+          htmlRender += `</div>`;
 
           // Orden fijo, sin importar el orden real de las filas en la hoja: los 4
           // proveedores siempre juntos y en el mismo orden, luego el cuadre de Stock.
