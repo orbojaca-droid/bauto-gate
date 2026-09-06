@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Lora:ital,wght@1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="estilo-bauto.css">
 </head>
 <body>
@@ -83,7 +84,10 @@
         <div class="card-icon"><span class="material-symbols-outlined">timeline</span></div>
         <div class="card-body">
           <div class="card-top" style="justify-content:flex-end;">
-            <span class="status activo"><span class="status-dot"></span>Activo</span>
+            <div class="health">
+              <div class="disc-wrap"><div class="disc unknown"></div></div>
+              <span class="latido-time muted">Cargando&hellip;</span>
+            </div>
           </div>
           <div class="card-title">PLATAFORMA</div>
           <div class="card-divider"></div>
@@ -95,7 +99,10 @@
         <div class="card-icon"><span class="material-symbols-outlined">smartphone</span></div>
         <div class="card-body">
           <div class="card-top" style="justify-content:flex-end;">
-            <span class="status activo"><span class="status-dot"></span>Activo</span>
+            <div class="health">
+              <div class="disc-wrap"><div class="disc unknown"></div></div>
+              <span class="latido-time muted">Cargando&hellip;</span>
+            </div>
           </div>
           <div class="card-title">APPBAUTO</div>
           <div class="card-divider"></div>
@@ -114,7 +121,10 @@
       <a class="card light clickable" data-proyecto="QR" href="#" target="_blank" rel="noopener">
         <div class="card-top">
           <div class="card-icon"><span class="material-symbols-outlined">qr_code_2</span></div>
-          <span class="status activo"><span class="status-dot"></span>Activo</span>
+          <div class="health">
+            <div class="disc-wrap"><div class="disc unknown"></div></div>
+            <span class="latido-time muted">Cargando&hellip;</span>
+          </div>
         </div>
         <div class="card-body">
           <div class="card-title">GENERADOR CÓDIGOS QR</div>
@@ -126,7 +136,10 @@
       <a class="card light clickable" data-proyecto="AGENTE" href="#" target="_blank" rel="noopener">
         <div class="card-top">
           <div class="card-icon"><span class="material-symbols-outlined">smart_toy</span></div>
-          <span class="status activo"><span class="status-dot"></span>Activo</span>
+          <div class="health">
+            <div class="disc-wrap"><div class="disc unknown"></div></div>
+            <span class="latido-time muted">Cargando&hellip;</span>
+          </div>
         </div>
         <div class="card-body">
           <div class="card-title">CONFIGURADOR DE AGENTE</div>
@@ -138,7 +151,10 @@
       <a class="card light clickable" data-proyecto="CATALOGUE" href="#" target="_blank" rel="noopener">
         <div class="card-top">
           <div class="card-icon"><span class="material-symbols-outlined">storefront</span></div>
-          <span class="status activo"><span class="status-dot"></span>Activo</span>
+          <div class="health">
+            <div class="disc-wrap"><div class="disc unknown"></div></div>
+            <span class="latido-time muted">Cargando&hellip;</span>
+          </div>
         </div>
         <div class="card-body">
           <div class="card-title">EDITOR DE CATÁLOGO</div>
@@ -150,7 +166,10 @@
       <a class="card light clickable" data-proyecto="STOCK" href="#" target="_blank" rel="noopener">
         <div class="card-top">
           <div class="card-icon"><span class="material-symbols-outlined">inventory_2</span></div>
-          <span class="status activo"><span class="status-dot"></span>Activo</span>
+          <div class="health">
+            <div class="disc-wrap"><div class="disc unknown"></div></div>
+            <span class="latido-time muted">Cargando&hellip;</span>
+          </div>
         </div>
         <div class="card-body">
           <div class="card-title">STOCK</div>
@@ -162,7 +181,10 @@
       <a class="card light clickable" data-proyecto="VENTAS" href="#" target="_blank" rel="noopener">
         <div class="card-top">
           <div class="card-icon"><span class="material-symbols-outlined">point_of_sale</span></div>
-          <span class="status activo"><span class="status-dot"></span>Activo</span>
+          <div class="health">
+            <div class="disc-wrap"><div class="disc unknown"></div></div>
+            <span class="latido-time muted">Cargando&hellip;</span>
+          </div>
         </div>
         <div class="card-body">
           <div class="card-title">VENTAS</div>
@@ -174,7 +196,10 @@
       <a class="card light clickable" data-proyecto="PRODUCCION" href="#" target="_blank" rel="noopener">
         <div class="card-top">
           <div class="card-icon"><span class="material-symbols-outlined">precision_manufacturing</span></div>
-          <span class="status activo"><span class="status-dot"></span>Activo</span>
+          <div class="health">
+            <div class="disc-wrap"><div class="disc unknown"></div></div>
+            <span class="latido-time muted">Cargando&hellip;</span>
+          </div>
         </div>
         <div class="card-body">
           <div class="card-title">PRODUCCIÓN</div>
@@ -312,9 +337,20 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
   const iconTelemetry = document.getElementById('telemetry-icon');
   const dotTelemetry = document.getElementById('telemetry-dot');
 
+  // El fetch de telemetría corre en segundo plano (prefetch) mientras el modal sigue
+  // oculto (display:none) — un <canvas> dentro de un contenedor oculto mide 0x0 y
+  // Chart.js se queda con ese tamaño para siempre (resize() no lo corrige). Por eso
+  // el radar no se construye ahí: los datos se guardan y el gráfico se arma recién
+  // la primera vez que el modal se hace visible de verdad.
+  let radarChartRef = null;
+  let construirRadarFn = null;
+
   if (btnTelemetry && token) {
     // 1. Abrir/Cerrar Modal
-    btnTelemetry.addEventListener('click', () => { modalTelemetry.style.display = 'flex'; });
+    btnTelemetry.addEventListener('click', () => {
+      modalTelemetry.style.display = 'flex';
+      if (construirRadarFn && !radarChartRef) construirRadarFn();
+    });
     btnCerrarTelemetry.addEventListener('click', () => { modalTelemetry.style.display = 'none'; });
     
     // 2. Fetch asincrono background
@@ -378,39 +414,86 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
           // Corrección del usuario tras ver el resultado: los 3 Niveles son SUBtítulos
           // dentro del grupo "Proyectos" — no reemplazan ese título, porque si no, no se
           // entiende que los 3 grupos siguen siendo proyectos.
+          // Niveles del ecosistema, decisión del usuario (2026-09-05) — no es el orden de
+          // TELEMETRIA_SALUD ni de nombresCortos en el backend, es jerarquía real: Nivel 1
+          // (HUB, la puerta de entrada), Nivel 2 (PLATAFORMA y APPBAUTO, los dos "grandes"),
+          // Nivel 3 (los 6 restantes). Se usa como orden fijo de los 9 vértices del radar y
+          // como orden de recorrido para actualizar los 2 puntos de salud de la cuadrícula.
           const NIVELES = [
             { label: 'Nivel 1', proyectos: ['HUB'] },
             { label: 'Nivel 2', proyectos: ['PLATAFORMA', 'APPBAUTO'] },
             { label: 'Nivel 3', proyectos: ['CATALOGO', 'QR', 'AGENTE', 'PRODUCCION', 'STOCK', 'VENTAS'] }
           ];
+          const ORDEN_PROYECTOS = NIVELES.reduce((acc, n) => acc.concat(n.proyectos), []);
 
-          htmlRender += `<div><span class="salud-group-label">Proyectos</span>`;
-          NIVELES.forEach(nivel => {
-            htmlRender += `<span class="salud-subgroup-label">${nivel.label}</span>`;
-            nivel.proyectos.forEach(proyecto => {
+          // Ícono + sigla por proyecto (identidad visual del radar) y su tarjeta real en la
+          // cuadrícula (data-proyecto) — HUB no tiene tarjeta propia, es el hub mismo.
+          const PROY_META = {
+            HUB:        { icon: 'shield',                  abbr: 'HUB',  grid: null },
+            PLATAFORMA: { icon: 'timeline',                abbr: 'PLAT', grid: 'PLATFORM' },
+            APPBAUTO:   { icon: 'smartphone',              abbr: 'APP',  grid: 'APPBAUTO' },
+            CATALOGO:   { icon: 'storefront',              abbr: 'CAT',  grid: 'CATALOGUE' },
+            QR:         { icon: 'qr_code_2',               abbr: 'QR',   grid: 'QR' },
+            AGENTE:     { icon: 'smart_toy',               abbr: 'AGT',  grid: 'AGENTE' },
+            PRODUCCION: { icon: 'precision_manufacturing', abbr: 'PROD', grid: 'PRODUCCION' },
+            STOCK:      { icon: 'inventory_2',             abbr: 'STK',  grid: 'STOCK' },
+            VENTAS:     { icon: 'point_of_sale',           abbr: 'VTA',  grid: 'VENTAS' }
+          };
+
+          // Salud general 0-100 a partir de las señales reales que ya existen (estado +
+          // resultado del último despliegue). Sin dato = null (proyecto sin conectar
+          // todavía, ej. PLATAFORMA) — nunca se inventa un número para eso.
+          const NODATA_BASELINE = 15;
+          const scoreDe = (datos) => {
+            if (!datos) return null;
+            const e = (datos.estado || '').toUpperCase();
+            let base = (e === 'ONLINE' || e === 'ACTIVO' || e === 'OK') ? 90 : (e === 'WARNING' || e === 'ADVERTENCIA') ? 55 : 20;
+            if (datos.ultimoDespliegue && datos.ultimoDespliegue.toUpperCase().indexOf('OK') !== 0) base = Math.min(base, 45);
+            return base;
+          };
+
+          // Actualiza los 2 puntos de salud + hora de latido de cada tarjeta de la
+          // cuadrícula principal con los mismos datos que alimentan el radar de abajo.
+          function actualizarGridSalud() {
+            let peligro = false;
+            ORDEN_PROYECTOS.forEach(proyecto => {
+              const meta = PROY_META[proyecto];
+              if (!meta || !meta.grid) return;
+              const tarjeta = document.querySelector('[data-proyecto="' + meta.grid + '"]');
+              const healthEl = tarjeta && tarjeta.querySelector('.health');
+              if (!healthEl) return;
               const datos = semaforos[proyecto];
-              if (!datos) return;
+              if (!datos) {
+                healthEl.innerHTML = '<div class="disc-wrap"><div class="disc unknown"></div></div><span class="latido-time muted">Sin conectar</span>';
+                return;
+              }
+              if (!esColorExito(datos.estado)) peligro = true;
               const color = getColor(datos.estado);
-              if (!esColorExito(datos.estado)) hayPeligro = true;
               const deployColor = getDeployColor(datos.ultimoDespliegue);
-
-              htmlRender += `
-                <div class="proj-row">
-                  <div class="disc-wrap">
-                     <div class="disc" style="background:${color};"></div>
-                     ${deployColor ? `<div class="deploy-dot" title="${datos.ultimoDespliegue}" style="background:${deployColor};"></div>` : ''}
-                  </div>
-                  <div class="proj-meta">
-                    <span class="proj-name">${proyecto}</span>
-                    ${datos.mensaje ? `<span class="proj-note">${datos.mensaje}</span>` : ''}
-                    ${datos.ultimoLatido ? `<span class="proj-latido">Latido: ${formatearFechaBogota(datos.ultimoLatido)}</span>` : ''}
-                  </div>
-                  <span class="proj-badge" style="background:color-mix(in srgb, ${color} 15%, transparent);color:${color};">${datos.estado}</span>
+              healthEl.innerHTML = `
+                <div class="disc-wrap">
+                  <div class="disc" style="background:${color};"></div>
+                  ${deployColor ? `<div class="deploy-dot" title="${datos.ultimoDespliegue}" style="background:${deployColor};"></div>` : ''}
                 </div>
-              `;
+                <span class="latido-time">${datos.ultimoLatido ? formatearFechaBogota(datos.ultimoLatido) : ''}</span>`;
             });
-          });
-          htmlRender += `</div>`;
+            return peligro;
+          }
+          hayPeligro = actualizarGridSalud() || hayPeligro;
+
+          // Radar de salud: un solo vértice por proyecto, en vez de la lista por Niveles
+          // de antes. El detalle real (estado, latido, despliegue, mensaje) aparece al
+          // tocar un vértice — nunca se muestra la matriz de categorías de Fase 6 aquí
+          // porque este endpoint todavía no la expone (solo Appbauto la tiene hoy).
+          htmlRender += `<div>
+            <span class="salud-group-label">Proyectos</span>
+            <div id="radar-wrap" style="display:flex;justify-content:center;margin:4px 0 8px;">
+              <div style="position:relative;width:230px;height:230px;">
+                <canvas id="radar-canvas"></canvas>
+              </div>
+            </div>
+            <div id="cat-detail"></div>
+          </div>`;
 
           // Orden fijo, sin importar el orden real de las filas en la hoja: los 4
           // proveedores siempre juntos y en el mismo orden, luego el cuadre de Stock.
@@ -478,6 +561,140 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
              iconTelemetry.style.color = '#ef4444';
              dotTelemetry.style.display = 'block';
           }
+
+          // Radar de salud (Chart.js) — un vértice por proyecto, con la sigla e ícono
+          // dibujados a mano encima del punto para que se identifique sin abrir la
+          // cuadrícula. El detalle real al tocar un vértice usa exactamente los mismos
+          // datos que ya muestran las tarjetas: estado, latido, despliegue y mensaje.
+          // Se construye con construirRadar() — ver nota arriba sobre por qué no se
+          // arma aquí mismo si el modal todavía está oculto.
+          function construirRadar() {
+          const radarCanvas = document.getElementById('radar-canvas');
+          if (radarCanvas && typeof Chart !== 'undefined') {
+            const datosPorProyecto = ORDEN_PROYECTOS.map(p => semaforos[p] || null);
+            const iconLabelPlugin = {
+              id: 'iconLabelPlugin',
+              afterDraw(chart) {
+                const scale = chart.scales.r;
+                if (!scale) return;
+                const ctx = chart.ctx;
+                const outerR = scale.drawingArea + 18;
+                ctx.save();
+                ORDEN_PROYECTOS.forEach((proyecto, i) => {
+                  const meta = PROY_META[proyecto];
+                  const pos = scale.getPointPosition(i, outerR);
+                  const conectado = !!datosPorProyecto[i];
+                  ctx.font = "18px 'Material Symbols Outlined'";
+                  ctx.fillStyle = conectado ? '#B85C38' : '#A39885';
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'middle';
+                  ctx.fillText(meta.icon, pos.x, pos.y);
+                  ctx.font = "600 9px 'Rajdhani', sans-serif";
+                  ctx.fillStyle = conectado ? '#78716C' : '#A39885';
+                  ctx.fillText(meta.abbr, pos.x, pos.y + 13);
+                });
+                ctx.restore();
+              }
+            };
+
+            const radarChart = new Chart(radarCanvas.getContext('2d'), {
+              type: 'radar',
+              data: {
+                labels: ORDEN_PROYECTOS.map(p => p),
+                datasets: [{
+                  data: datosPorProyecto.map(d => { const s = scoreDe(d); return s == null ? NODATA_BASELINE : s; }),
+                  backgroundColor: 'rgba(184,92,56,0.16)',
+                  borderColor: '#B85C38',
+                  borderWidth: 2.5,
+                  tension: 0.35,
+                  pointBackgroundColor: '#FAF9F6',
+                  pointBorderColor: datosPorProyecto.map(d => d ? '#B85C38' : '#E4DED3'),
+                  pointBorderWidth: 1.5,
+                  pointRadius: 5,
+                  pointHoverRadius: 7,
+                  pointHitRadius: 12
+                }]
+              },
+              plugins: [iconLabelPlugin],
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: 24 },
+                scales: {
+                  r: {
+                    min: 0,
+                    max: 100,
+                    ticks: { display: false, stepSize: 25 },
+                    grid: { color: 'rgba(120,113,108,0.10)', circular: true },
+                    angleLines: { color: 'rgba(120,113,108,0.10)', lineWidth: 0.75 },
+                    pointLabels: { display: false }
+                  }
+                },
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    backgroundColor: '#1C1917',
+                    titleFont: { family: "'Sora', sans-serif", size: 12, weight: '700' },
+                    bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 12 },
+                    padding: 10, cornerRadius: 8, displayColors: false,
+                    callbacks: {
+                      title: (items) => ORDEN_PROYECTOS[items[0].dataIndex],
+                      label: (item) => {
+                        const d = datosPorProyecto[item.dataIndex];
+                        return d ? `Estado: ${d.estado}` : 'Sin conectar al ecosistema';
+                      }
+                    }
+                  }
+                },
+                onClick: (evt, elements) => { if (elements.length) mostrarDetalleProyecto(elements[0].index); }
+              }
+            });
+            radarChartRef = radarChart;
+
+            radarCanvas.addEventListener('click', (evt) => {
+              const scale = radarChart.scales.r;
+              if (!scale) return;
+              const rect = radarCanvas.getBoundingClientRect();
+              const x = evt.clientX - rect.left, y = evt.clientY - rect.top;
+              const outerR = scale.drawingArea + 18;
+              ORDEN_PROYECTOS.forEach((proyecto, i) => {
+                const pos = scale.getPointPosition(i, outerR);
+                if (Math.hypot(x - pos.x, y - pos.y) < 20) mostrarDetalleProyecto(i);
+              });
+            });
+
+            const catDetail = document.getElementById('cat-detail');
+            catDetail.innerHTML = '<p style="font-size:11.5px;color:var(--text-muted);margin:0;line-height:1.5;text-align:center;">Toca un proyecto en la figura para ver su detalle.</p>';
+            function mostrarDetalleProyecto(idx) {
+              const proyecto = ORDEN_PROYECTOS[idx];
+              const meta = PROY_META[proyecto];
+              const datos = datosPorProyecto[idx];
+              const ds = radarChart.data.datasets[0];
+              ds.pointRadius = ORDEN_PROYECTOS.map((p, i) => i === idx ? 8 : 5);
+              ds.pointBorderWidth = ORDEN_PROYECTOS.map((p, i) => i === idx ? 2.5 : 1.5);
+              radarChart.update();
+
+              let inner = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <span class="material-symbols-outlined" style="font-size:17px;color:var(--accent-color);">${meta.icon}</span>
+                <span style="font-family:var(--font-family-heading);font-weight:700;font-size:13.5px;">${proyecto}</span>
+              </div>`;
+              if (datos) {
+                const color = getColor(datos.estado);
+                inner += `<div style="display:flex;flex-direction:column;gap:4px;font-family:var(--font-family-body);font-size:11.5px;color:var(--text-secondary);">
+                  <span>Estado: <strong style="color:${color};">${datos.estado}</strong></span>
+                  ${datos.mensaje ? `<span>${datos.mensaje}</span>` : ''}
+                  ${datos.ultimoLatido ? `<span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">Latido: ${formatearFechaBogota(datos.ultimoLatido)}</span>` : ''}
+                  ${datos.ultimoDespliegue ? `<span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">Despliegue: ${datos.ultimoDespliegue}</span>` : ''}
+                </div>`;
+              } else {
+                inner += `<p style="font-size:11.5px;color:var(--text-muted);margin:0;line-height:1.5;">Sin conectar al ecosistema todav&iacute;a.</p>`;
+              }
+              catDetail.innerHTML = inner;
+            }
+          }
+          }
+          construirRadarFn = construirRadar;
+          if (modalTelemetry.style.display === 'flex') construirRadar();
 
         } else if (res.error) {
            listaTelemetria.innerHTML = `<div style="text-align:center;color:#ef4444;font-size:13px;">${res.error}</div>`;
