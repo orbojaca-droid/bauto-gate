@@ -365,6 +365,7 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
         if (res.success) {
           const semaforos = res.semaforos || {};
           const otrasSenales = res.otrasSenales || {};
+          const categorias = res.categorias || {};
           let htmlRender = '';
           let hayPeligro = false;
           
@@ -440,16 +441,25 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
             VENTAS:     { icon: 'point_of_sale',           abbr: 'VTA',  grid: 'VENTAS' }
           };
 
-          // Salud general 0-100 a partir de las señales reales que ya existen (estado +
-          // resultado del último despliegue). Sin dato = null (proyecto sin conectar
-          // todavía, ej. PLATAFORMA) — nunca se inventa un número para eso.
+          // El radar representa Nivel 3 (matriz de categorías) — a propósito NO repite el
+          // latido/despliegue que ya se ve en la cuadrícula (Nivel 1/2). La salud de cada
+          // vértice es el % de categorías en OK para ese proyecto; sin ninguna fila todavía
+          // (la mayoría hoy, solo APPBAUTO tiene) = línea base honesta, nunca inventada.
           const NODATA_BASELINE = 15;
-          const scoreDe = (datos) => {
-            if (!datos) return null;
-            const e = (datos.estado || '').toUpperCase();
-            let base = (e === 'ONLINE' || e === 'ACTIVO' || e === 'OK') ? 90 : (e === 'WARNING' || e === 'ADVERTENCIA') ? 55 : 20;
-            if (datos.ultimoDespliegue && datos.ultimoDespliegue.toUpperCase().indexOf('OK') !== 0) base = Math.min(base, 45);
-            return base;
+          const ORDEN_CATEGORIAS = ['SEGURIDAD', 'LECTURA', 'ESCRITURA', 'INTEGRACIONES', 'DOCUMENTOS'];
+          const CATEGORIAS_META = {
+            SEGURIDAD:     { icon: 'lock',       label: 'Seguridad' },
+            LECTURA:       { icon: 'visibility', label: 'Lectura' },
+            ESCRITURA:     { icon: 'edit',       label: 'Escritura' },
+            INTEGRACIONES: { icon: 'hub',        label: 'Integraciones' },
+            DOCUMENTOS:    { icon: 'description', label: 'Documentos' }
+          };
+          const scoreDeCategorias = (cats) => {
+            if (!cats) return null;
+            const keys = Object.keys(cats);
+            if (!keys.length) return null;
+            const okCount = keys.filter(k => cats[k].estado === 'OK').length;
+            return Math.round((okCount / keys.length) * 100);
           };
 
           // Actualiza los 2 puntos de salud + hora de latido de cada tarjeta de la
@@ -482,9 +492,9 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
           hayPeligro = actualizarGridSalud() || hayPeligro;
 
           // Radar de salud: un solo vértice por proyecto, en vez de la lista por Niveles
-          // de antes. El detalle real (estado, latido, despliegue, mensaje) aparece al
-          // tocar un vértice — nunca se muestra la matriz de categorías de Fase 6 aquí
-          // porque este endpoint todavía no la expone (solo Appbauto la tiene hoy).
+          // de antes. Representa Nivel 3 (matriz de categorías) — el detalle al tocar un
+          // vértice muestra las 5 categorías reales; el latido/despliegue de Nivel 1/2 ya
+          // se ve en la tarjeta de la cuadrícula y a propósito no se repite aquí.
           htmlRender += `<div>
             <span class="salud-group-label">Proyectos</span>
             <div id="radar-wrap" style="display:flex;justify-content:center;margin:4px 0 8px;">
@@ -495,51 +505,81 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
             <div id="cat-detail"></div>
           </div>`;
 
+          // Anillo de progreso reutilizable (SVG inline, va dentro de htmlRender como texto).
+          const buildRing = (percent, color, label, valueText) => {
+            const size = 64, stroke = 6, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+            const offset = c - (Math.min(Math.max(percent, 0), 100) / 100) * c;
+            return `<div style="text-align:center;">
+              <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--border-warm)" stroke-width="${stroke}"/>
+                <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+                <text x="50%" y="53%" text-anchor="middle" font-family="'Sora',sans-serif" font-weight="700" font-size="13" fill="var(--text-primary)">${Math.round(percent)}%</text>
+              </svg>
+              <div style="font-family:var(--font-mono);font-size:9.5px;font-weight:600;letter-spacing:0.04em;color:var(--text-muted);margin-top:4px;">${label}<br>${valueText}</div>
+            </div>`;
+          };
+
           // Orden fijo, sin importar el orden real de las filas en la hoja: los 4
           // proveedores siempre juntos y en el mismo orden, luego el cuadre de Stock.
           const ORDEN_PROVEEDORES = ['PROVEEDOR GEMINI', 'PROVEEDOR MIPAQUETE', 'PROVEEDOR WHATSAPP', 'PROVEEDOR CLAUDE'];
+          const ICONOS_PROVEEDOR = { 'PROVEEDOR GEMINI': 'auto_awesome', 'PROVEEDOR MIPAQUETE': 'local_shipping', 'PROVEEDOR WHATSAPP': 'chat', 'PROVEEDOR CLAUDE': 'smart_toy' };
+          const chipProveedor = (nombre, datos) => {
+            const color = getColor(datos.estado);
+            const icono = ICONOS_PROVEEDOR[nombre] || 'cloud';
+            return `<div class="prov-chip">
+              <span class="material-symbols-outlined prov-chip-icon">${icono}</span>
+              <span class="prov-chip-name">${nombre.replace('PROVEEDOR ', '')}</span>
+              <span class="status-pill" style="background:color-mix(in srgb, ${color} 15%, transparent);color:${color};">${datos.estado}</span>
+            </div>`;
+          };
           let filasProveedores = '';
           ORDEN_PROVEEDORES.forEach((nombreProveedor) => {
             const datos = otrasSenales[nombreProveedor];
             if (!datos) return;
-            const color = getColor(datos.estado);
             if (!esColorExito(datos.estado)) hayPeligro = true;
-            filasProveedores += `
-              <div class="prov-row">
-                <span class="prov-name">${nombreProveedor}</span>
-                <span class="prov-estado" style="color:${color};">${datos.estado}</span>
-              </div>`;
+            filasProveedores += chipProveedor(nombreProveedor, datos);
           });
           // Cualquier proveedor futuro no listado arriba todavía se muestra, al final del grupo.
           for (const senal in otrasSenales) {
             if (ORDEN_PROVEEDORES.includes(senal) || senal === 'CUPO GOOGLE' || senal === 'CUADRE STOCK') continue;
             const datos = otrasSenales[senal];
-            const color = getColor(datos.estado);
             if (!esColorExito(datos.estado)) hayPeligro = true;
-            filasProveedores += `
-              <div class="prov-row">
-                <span class="prov-name">${senal}</span>
-                <span class="prov-estado" style="color:${color};">${datos.estado}</span>
-              </div>`;
+            filasProveedores += chipProveedor(senal, datos);
           }
 
           const cupoGoogle = otrasSenales['CUPO GOOGLE'];
           const cuadreStock = otrasSenales['CUADRE STOCK'];
 
           if (cupoGoogle) {
+            // El mensaje siempre sale con este formato exacto (chequearCupoGoogle, 0. PLATFORM):
+            // "correos: X/100, llamadas: Y/20000". Si el formato cambiara, se cae de vuelta al
+            // texto plano en vez de romperse.
+            const m = /correos:\s*(\d+)\s*\/\s*(\d+),\s*llamadas:\s*(\d+)\s*\/\s*(\d+)/i.exec(cupoGoogle.mensaje || '');
+            let cupoHtml;
+            if (m) {
+              const correosUsados = Number(m[1]), correosMax = Number(m[2]);
+              const llamadasUsadas = Number(m[3]), llamadasMax = Number(m[4]);
+              const pctCorreos = correosMax ? (correosUsados / correosMax) * 100 : 0;
+              const pctLlamadas = llamadasMax ? (llamadasUsadas / llamadasMax) * 100 : 0;
+              const colorCorreos = pctCorreos >= 70 ? 'var(--warning-color)' : 'var(--accent-color)';
+              const colorLlamadas = pctLlamadas >= 70 ? 'var(--warning-color)' : 'var(--accent-color)';
+              cupoHtml = `<div style="display:flex;gap:22px;justify-content:center;padding:4px 0 2px;">
+                ${buildRing(pctCorreos, colorCorreos, 'CORREOS', correosUsados + '/' + correosMax)}
+                ${buildRing(pctLlamadas, colorLlamadas, 'LLAMADAS', llamadasUsadas + '/' + llamadasMax)}
+              </div>`;
+            } else {
+              cupoHtml = `<div class="meter-card"><div class="meter-title">CUPO GOOGLE</div><div class="meter-desc">${cupoGoogle.mensaje}</div></div>`;
+            }
             htmlRender += `<div>
               <span class="salud-group-label">Cupo de Google</span>
-              <div class="meter-card">
-                <div class="meter-title">CUPO GOOGLE</div>
-                <div class="meter-desc">${cupoGoogle.mensaje}</div>
-              </div>
+              ${cupoHtml}
             </div>`;
           }
 
           if (filasProveedores) {
             htmlRender += `<div>
               <span class="salud-group-label">Proveedores externos</span>
-              ${filasProveedores}
+              <div class="prov-chip-grid">${filasProveedores}</div>
             </div>`;
           }
 
@@ -549,8 +589,11 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
             htmlRender += `<div>
               <span class="salud-group-label">Cuadre de Stock</span>
               <div class="cuadre-card" style="border-color:${colorCuadre};">
-                <div class="cuadre-title" style="color:${colorCuadre};">CUADRE STOCK</div>
-                <div class="cuadre-desc">${cuadreStock.mensaje}</div>
+                <span class="material-symbols-outlined" style="color:${colorCuadre};">fact_check</span>
+                <div>
+                  <div class="cuadre-title" style="color:${colorCuadre};">Cuadre de Stock</div>
+                  <div class="cuadre-desc">${cuadreStock.mensaje}</div>
+                </div>
               </div>
             </div>`;
           }
@@ -571,7 +614,7 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
           function construirRadar() {
           const radarCanvas = document.getElementById('radar-canvas');
           if (radarCanvas && typeof Chart !== 'undefined') {
-            const datosPorProyecto = ORDEN_PROYECTOS.map(p => semaforos[p] || null);
+            const catsPorProyecto = ORDEN_PROYECTOS.map(p => categorias[p] || null);
             const iconLabelPlugin = {
               id: 'iconLabelPlugin',
               afterDraw(chart) {
@@ -583,7 +626,7 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
                 ORDEN_PROYECTOS.forEach((proyecto, i) => {
                   const meta = PROY_META[proyecto];
                   const pos = scale.getPointPosition(i, outerR);
-                  const conectado = !!datosPorProyecto[i];
+                  const conectado = !!catsPorProyecto[i];
                   ctx.font = "18px 'Material Symbols Outlined'";
                   ctx.fillStyle = conectado ? '#B85C38' : '#A39885';
                   ctx.textAlign = 'center';
@@ -602,13 +645,13 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
               data: {
                 labels: ORDEN_PROYECTOS.map(p => p),
                 datasets: [{
-                  data: datosPorProyecto.map(d => { const s = scoreDe(d); return s == null ? NODATA_BASELINE : s; }),
+                  data: catsPorProyecto.map(c => { const s = scoreDeCategorias(c); return s == null ? NODATA_BASELINE : s; }),
                   backgroundColor: 'rgba(184,92,56,0.16)',
                   borderColor: '#B85C38',
                   borderWidth: 2.5,
                   tension: 0.35,
                   pointBackgroundColor: '#FAF9F6',
-                  pointBorderColor: datosPorProyecto.map(d => d ? '#B85C38' : '#E4DED3'),
+                  pointBorderColor: catsPorProyecto.map(c => c ? '#B85C38' : '#E4DED3'),
                   pointBorderWidth: 1.5,
                   pointRadius: 5,
                   pointHoverRadius: 7,
@@ -640,8 +683,11 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
                     callbacks: {
                       title: (items) => ORDEN_PROYECTOS[items[0].dataIndex],
                       label: (item) => {
-                        const d = datosPorProyecto[item.dataIndex];
-                        return d ? `Estado: ${d.estado}` : 'Sin conectar al ecosistema';
+                        const c = catsPorProyecto[item.dataIndex];
+                        if (!c) return 'Sin datos de categorías (Nivel 3)';
+                        const keys = Object.keys(c);
+                        const ok = keys.filter(k => c[k].estado === 'OK').length;
+                        return `Categorías: ${ok}/${keys.length} OK`;
                       }
                     }
                   }
@@ -664,30 +710,38 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
             });
 
             const catDetail = document.getElementById('cat-detail');
-            catDetail.innerHTML = '<p style="font-size:11.5px;color:var(--text-muted);margin:0;line-height:1.5;text-align:center;">Toca un proyecto en la figura para ver su detalle.</p>';
+            catDetail.innerHTML = '<p style="font-size:11.5px;color:var(--text-muted);margin:0;line-height:1.5;text-align:center;">Toca un proyecto en la figura para ver su detalle por categor&iacute;a.</p>';
+            // El detalle SOLO muestra la matriz de categorías (Nivel 3) — a propósito no
+            // repite estado/latido/despliegue, eso ya está en la tarjeta de la cuadrícula.
             function mostrarDetalleProyecto(idx) {
               const proyecto = ORDEN_PROYECTOS[idx];
               const meta = PROY_META[proyecto];
-              const datos = datosPorProyecto[idx];
+              const cats = catsPorProyecto[idx];
               const ds = radarChart.data.datasets[0];
               ds.pointRadius = ORDEN_PROYECTOS.map((p, i) => i === idx ? 8 : 5);
               ds.pointBorderWidth = ORDEN_PROYECTOS.map((p, i) => i === idx ? 2.5 : 1.5);
               radarChart.update();
 
-              let inner = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              let inner = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
                 <span class="material-symbols-outlined" style="font-size:17px;color:var(--accent-color);">${meta.icon}</span>
                 <span style="font-family:var(--font-family-heading);font-weight:700;font-size:13.5px;">${proyecto}</span>
               </div>`;
-              if (datos) {
-                const color = getColor(datos.estado);
-                inner += `<div style="display:flex;flex-direction:column;gap:4px;font-family:var(--font-family-body);font-size:11.5px;color:var(--text-secondary);">
-                  <span>Estado: <strong style="color:${color};">${datos.estado}</strong></span>
-                  ${datos.mensaje ? `<span>${datos.mensaje}</span>` : ''}
-                  ${datos.ultimoLatido ? `<span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">Latido: ${formatearFechaBogota(datos.ultimoLatido)}</span>` : ''}
-                  ${datos.ultimoDespliegue ? `<span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">Despliegue: ${datos.ultimoDespliegue}</span>` : ''}
-                </div>`;
+              if (cats) {
+                inner += '<div style="display:flex;flex-direction:column;gap:7px;">' + ORDEN_CATEGORIAS.map(catKey => {
+                  const catMeta = CATEGORIAS_META[catKey];
+                  const dato = cats[catKey];
+                  const estado = dato ? dato.estado : null;
+                  const color = estado === 'OK' ? 'var(--success-color)' : estado === 'FALLO' ? 'var(--danger-color)' : 'var(--border-warm)';
+                  const shape = estado ? 'border-radius:50%;' : 'border-radius:50%;border:1.5px dashed var(--text-muted);background:transparent!important;';
+                  const titulo = dato && dato.mensaje ? dato.mensaje : (estado ? '' : 'Sin datos todavía');
+                  return `<div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-secondary);" title="${titulo.replace(/"/g, '&quot;')}">
+                    <span class="material-symbols-outlined" style="font-size:15px;color:var(--text-muted);width:18px;">${catMeta.icon}</span>
+                    <span style="flex:1;">${catMeta.label}</span>
+                    <span style="width:8px;height:8px;flex:none;background:${color};${shape}"></span>
+                  </div>`;
+                }).join('') + '</div>';
               } else {
-                inner += `<p style="font-size:11.5px;color:var(--text-muted);margin:0;line-height:1.5;">Sin conectar al ecosistema todav&iacute;a.</p>`;
+                inner += `<p style="font-size:11.5px;color:var(--text-muted);margin:0;line-height:1.5;">A&uacute;n sin datos de categor&iacute;as (Nivel 3) &mdash; esta capa de telemetr&iacute;a todav&iacute;a no se ha conectado en este proyecto.</p>`;
               }
               catDetail.innerHTML = inner;
             }
