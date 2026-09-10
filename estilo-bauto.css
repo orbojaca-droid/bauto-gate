@@ -883,7 +883,12 @@ a {
 /* Radar de salud — un vértice por proyecto (reemplaza la lista por Niveles) */
 #radar-canvas { cursor: pointer; }
 #cat-detail {
-  min-height: 84px;
+  height: 168px;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: 12px 14px;
   margin: 6px 0 4px;
   background: rgba(255, 255, 255, 0.5);
