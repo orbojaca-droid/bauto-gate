@@ -563,10 +563,17 @@ document.getElementById('btn-apagar-todo').addEventListener('click', async funct
               const pctLlamadas = llamadasMax ? (llamadasUsadas / llamadasMax) * 100 : 0;
               const colorCorreos = pctCorreos >= 70 ? 'var(--warning-color)' : 'var(--accent-color)';
               const colorLlamadas = pctLlamadas >= 70 ? 'var(--warning-color)' : 'var(--accent-color)';
+              // "Llamadas" son solo las salidas a internet (MiPaquete, Vercel, Gemini, WhatsApp,
+              // Telegram), que es lo que Google limita a 20.000 diarias — no todo lo que hace el
+              // ecosistema. Se miden 41 de los 67 puntos reales: QR, Stock, Ventas y Producción
+              // quedaron fuera por alcance (Fase 7), así que el número es un piso, no un total.
               cupoHtml = `<div style="display:flex;gap:22px;justify-content:center;padding:4px 0 2px;">
                 ${buildRing(pctCorreos, colorCorreos, 'CORREOS', correosUsados + '/' + correosMax)}
                 ${buildRing(pctLlamadas, colorLlamadas, 'LLAMADAS', llamadasUsadas + '/' + llamadasMax)}
-              </div>`;
+              </div>
+              <p style="font-size:10.5px;color:var(--text-muted);text-align:center;margin:2px 0 0;line-height:1.45;font-family:var(--font-family-body);">
+                Llamadas = salidas a internet, conteo aproximado
+              </p>`;
             } else {
               cupoHtml = `<div class="meter-card"><div class="meter-title">CUPO GOOGLE</div><div class="meter-desc">${cupoGoogle.mensaje}</div></div>`;
             }
