@@ -207,6 +207,21 @@
           <div class="card-desc">Base de datos con panel lateral: incluye insumos, costeo y registro de producción.</div>
         </div>
       </a>
+
+      <a class="card light clickable" data-proyecto="WEB" href="#" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-icon"><span class="material-symbols-outlined">language</span></div>
+          <div class="health">
+            <div class="disc-wrap"><div class="disc unknown"></div></div>
+            <span class="latido-time muted">Sin latido</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">CENTRO DE MANDO WEB</div>
+          <div class="card-divider"></div>
+          <div class="card-desc">Solicitudes, contenido de la web, boletines y pedidos online.</div>
+        </div>
+      </a>
     </div>
 
   </div>
@@ -273,7 +288,9 @@
       AGENTE: 'https://script.google.com/macros/s/AKfycbwAGENTE_PLACEHOLDER/exec?hubToken=' + encodeURIComponent(token),
       STOCK: 'https://docs.google.com/spreadsheets/d/1cKL-Rt04R6e_Xdesg_2RkQufN6DKmTcSQpxVVTySZxg/edit',
       VENTAS: 'https://docs.google.com/spreadsheets/d/1tZeAgLCeeYpeesZQhxvtGNqKI6d9qfOZyYWCdAMzSH0/edit',
-      PRODUCCION: 'https://docs.google.com/spreadsheets/d/169kfhh-Zs1kPWyymLZr8RPsbzyQ9n-ysMi1zjd-IneU/edit'
+      PRODUCCION: 'https://docs.google.com/spreadsheets/d/169kfhh-Zs1kPWyymLZr8RPsbzyQ9n-ysMi1zjd-IneU/edit',
+      // @BAUTO_REFACTOR 2026-10-31 · Chat: Centro de Mando · Plan: PLAN_CENTRO_DE_MANDO.md · Nivel 3 (aprobación por toque); exige 'WEB' en PROYECTOS_PERMITIDOS
+      WEB: 'https://script.google.com/macros/s/AKfycbxqzw2HIUfXdQ0b-4Y7ZDprApdjg1mPztm3AjTKe878-nkI2oJPXnSc9RQ-5fMTLgh3/exec?hubToken=' + encodeURIComponent(token)
     };
 
     // @BAUTO_REFACTOR 2026-08-30: Solo habilitar los proyectos explícitamente permitidos (sin fallbacks permisivos)
